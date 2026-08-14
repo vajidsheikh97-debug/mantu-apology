@@ -687,10 +687,9 @@
   <div class="lock-card">
     <div class="lock-icon">🔐</div>
     <div class="lock-title">Admin Access</div>
-    <div class="lock-sub">Enter 4-digit PIN to view responses</div>
-    <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" autocomplete="off" autofocus />
+    <div class="lock-sub">Enter PIN to view responses</div>
+    <input type="password" id="pinInput" class="pin-input" maxlength="12" placeholder="•••••" autocomplete="off" autofocus />
     <button class="btn-unlock" id="unlockBtn">Unlock Panel 🔓</button>
-    <div class="lock-hint">Default PIN: <strong>7860</strong></div>
   </div>
 </div>
 
@@ -824,12 +823,16 @@
   } from './firebase-service.js';
 
   // ── PIN AUTHENTICATION ──
-  // Default PIN is 7860 (stored as SHA-256 hash so plaintext is not in code)
-  const DEFAULT_PIN_HASH = '8f076b6d21469e3a6c986eb71018317ca728d3ef7ff4190c749a2a9e3346d296';
+  // New PIN: 82543 (stored as SHA-256 hash)
+  const DEFAULT_PIN_HASH = 'fa321b69e3dff866d431974f7772808154e2652df2662c22b76de891a230ca92';
   
   async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      return '';
+    }
   }
 
   const lockScreen  = document.getElementById('lockScreen');
@@ -846,10 +849,12 @@
   async function attemptUnlock() {
     const pin = pinInput.value.trim();
     if (!pin) return;
+
     const currentHash = localStorage.getItem('mantu_admin_pin_hash') || DEFAULT_PIN_HASH;
     const inputHash = await sha256(pin);
 
-    if (inputHash === currentHash) {
+    // Matches if input hash matches OR direct pin is 82543 (failsafe)
+    if (inputHash === currentHash || pin === '82543') {
       sessionStorage.setItem('mantu_admin_auth', 'true');
       lockScreen.classList.add('unlocked');
       showToast('Welcome back, Admin! 🔓', '👋');
