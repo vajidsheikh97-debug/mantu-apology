@@ -21,16 +21,6 @@ export function isFirebaseConfigured() {
   );
 }
 
-// Attempt to load override config if available
-try {
-  const customConfig = await import('./firebase-config.js').catch(() => null);
-  if (customConfig && customConfig.firebaseConfig) {
-    firebaseConfig = customConfig.firebaseConfig;
-  }
-} catch (e) {
-  // Use default configuration
-}
-
 let db = null;
 let firestoreInitialized = false;
 

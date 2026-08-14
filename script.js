@@ -684,7 +684,7 @@ function resetSite() {
 /* ────────────────────────────────────────────────
    ▌ BOOT & EVENT BINDING
 ──────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   spawnParticles();
   renderQuestion(0);
   renderGoodbyeStep(0);
@@ -783,5 +783,12 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (!document.getElementById('catModal').classList.contains('hidden')) closeCatModal();
     }
   });
-});
+}
+
+// Immediate boot runner
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
