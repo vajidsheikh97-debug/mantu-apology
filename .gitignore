@@ -1,0 +1,9 @@
+# Keep real Firebase API keys private
+firebase-config.js
+
+# Dependencies and OS files
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

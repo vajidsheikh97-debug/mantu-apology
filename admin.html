@@ -32,6 +32,97 @@
       min-height: 100vh;
     }
 
+    /* ── Lock Screen ── */
+    .lockscreen-overlay {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .lockscreen-overlay.unlocked { display: none; }
+
+    .lock-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-width: 380px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .lock-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .lock-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.4rem;
+    }
+    .lock-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.8rem;
+    }
+
+    .pin-input {
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      text-align: center;
+      padding: 0.6rem 1rem;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+      margin-bottom: 1.2rem;
+      font-family: monospace;
+    }
+    .pin-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(255, 107, 107, 0.2);
+    }
+    .pin-input.shake {
+      animation: shake 0.4s ease;
+      border-color: var(--accent);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    .btn-unlock {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: #0f0f13;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--radius-sm);
+      width: 100%;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-unlock:hover { opacity: 0.9; }
+
+    .lock-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+
     /* ── Header ── */
     .admin-header {
       background: var(--surface);
@@ -482,10 +573,6 @@
       animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
-    @keyframes popIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
-    }
 
     .confirm-icon {
       font-size: 2.8rem;
@@ -563,15 +650,6 @@
       opacity: 1;
     }
 
-    /* ── Empty / loading states ── */
-    .state-placeholder {
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--text-muted);
-    }
-    .state-placeholder .big-emoji { font-size: 3rem; margin-bottom: 1rem; }
-    .state-placeholder p { font-size: 0.9rem; line-height: 1.6; }
-
     /* ── Config warning banner ── */
     .config-banner {
       background: rgba(255, 107, 107, 0.08);
@@ -604,6 +682,18 @@
 </head>
 <body>
 
+<!-- ── PIN Lock Screen Overlay ── -->
+<div class="lockscreen-overlay" id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">Admin Access</div>
+    <div class="lock-sub">Enter 4-digit PIN to view responses</div>
+    <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" autocomplete="off" autofocus />
+    <button class="btn-unlock" id="unlockBtn">Unlock Panel 🔓</button>
+    <div class="lock-hint">Default PIN: <strong>7860</strong></div>
+  </div>
+</div>
+
 <!-- ── Header ── -->
 <header class="admin-header">
   <div class="header-brand">
@@ -614,6 +704,7 @@
   <div class="header-actions">
     <span class="status-dot" id="connectionDot" title="Checking connection..."></span>
     <button class="btn-header" id="refreshBtn">⟳ Refresh</button>
+    <button class="btn-header" id="changePinBtn">🔑 Change PIN</button>
     <button class="btn-header" id="exportBtn">↓ Export CSV</button>
     <button class="btn-header btn-danger" id="clearAllBtn">🗑️ Clear All</button>
     <a href="index.html" class="btn-header" style="text-decoration:none;">← Back to Site</a>
@@ -732,12 +823,71 @@
     isFirebaseConfigured
   } from './firebase-service.js';
 
-  // ── State ──
+  // ── PIN AUTHENTICATION ──
+  // Default PIN is 7860 (stored as SHA-256 hash so plaintext is not in code)
+  const DEFAULT_PIN_HASH = '8f076b6d21469e3a6c986eb71018317ca728d3ef7ff4190c749a2a9e3346d296';
+  
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  const lockScreen  = document.getElementById('lockScreen');
+  const pinInput    = document.getElementById('pinInput');
+  const unlockBtn   = document.getElementById('unlockBtn');
+  const changePinBtn= document.getElementById('changePinBtn');
+
+  // Check if session is already authenticated
+  if (sessionStorage.getItem('mantu_admin_auth') === 'true') {
+    lockScreen.classList.add('unlocked');
+    initAdminData();
+  }
+
+  async function attemptUnlock() {
+    const pin = pinInput.value.trim();
+    if (!pin) return;
+    const currentHash = localStorage.getItem('mantu_admin_pin_hash') || DEFAULT_PIN_HASH;
+    const inputHash = await sha256(pin);
+
+    if (inputHash === currentHash) {
+      sessionStorage.setItem('mantu_admin_auth', 'true');
+      lockScreen.classList.add('unlocked');
+      showToast('Welcome back, Admin! 🔓', '👋');
+      initAdminData();
+    } else {
+      pinInput.classList.add('shake');
+      pinInput.value = '';
+      setTimeout(() => pinInput.classList.remove('shake'), 500);
+      showToast('Galat PIN! Dubara try karein.', '❌');
+    }
+  }
+
+  unlockBtn.addEventListener('click', attemptUnlock);
+  pinInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptUnlock(); });
+
+  changePinBtn.addEventListener('click', async () => {
+    const oldPin = prompt('Current PIN enter karein:');
+    if (!oldPin) return;
+    const currentHash = localStorage.getItem('mantu_admin_pin_hash') || DEFAULT_PIN_HASH;
+    if (await sha256(oldPin.trim()) !== currentHash) {
+      alert('Current PIN galat hai!');
+      return;
+    }
+    const newPin = prompt('Naya PIN enter karein (4 to 8 digits):');
+    if (!newPin || newPin.trim().length < 4) {
+      alert('PIN kam se kam 4 digits ka hona chahiye.');
+      return;
+    }
+    const newHash = await sha256(newPin.trim());
+    localStorage.setItem('mantu_admin_pin_hash', newHash);
+    showToast('PIN successfully badal gaya! 🔑', '✅');
+  });
+
+  // ── ADMIN DATA INITIALIZATION ──
   let allData = [];
-  let pendingDeleteTarget = null; // { type: 'single', sessionId: '...' } | { type: 'all' }
+  let pendingDeleteTarget = null;
   let activeDrawerSessionId = null;
 
-  // ── DOM refs ──
   const tbody        = document.getElementById('responsesBody');
   const statTotal    = document.getElementById('statTotal');
   const statCompleted= document.getElementById('statCompleted');
@@ -752,7 +902,6 @@
   const drawerContent= document.getElementById('drawerContent');
   const drawerDelete = document.getElementById('drawerDeleteBtn');
 
-  // Modal refs
   const deleteModal  = document.getElementById('deleteModalOverlay');
   const modalTitle   = document.getElementById('modalTitle');
   const modalDesc    = document.getElementById('modalDesc');
@@ -760,7 +909,6 @@
   const modalConfirm = document.getElementById('modalConfirmBtn');
   const clearAllBtn  = document.getElementById('clearAllBtn');
 
-  // Toast ref
   const toast        = document.getElementById('toast');
   const toastMsg     = document.getElementById('toastMsg');
   const toastIcon    = document.getElementById('toastIcon');
@@ -772,17 +920,23 @@
     setTimeout(() => toast.classList.remove('show'), 3500);
   }
 
-  // ── Show/hide config banner based on Firebase setup ──
-  if (isFirebaseConfigured()) {
-    configBanner.classList.add('hidden');
-    connDot.style.background = '#6bcb77';
-    connDot.style.boxShadow  = '0 0 6px #6bcb77';
-  } else {
-    connDot.style.background = '#ffd93d';
-    connDot.style.boxShadow  = '0 0 6px #ffd93d';
+  function initAdminData() {
+    if (isFirebaseConfigured()) {
+      configBanner.classList.add('hidden');
+      connDot.style.background = '#6bcb77';
+      connDot.style.boxShadow  = '0 0 6px #6bcb77';
+    } else {
+      connDot.style.background = '#ffd93d';
+      connDot.style.boxShadow  = '0 0 6px #ffd93d';
+    }
+
+    listenToAllResponses((data) => {
+      allData = data;
+      renderTable(data);
+      updateStats(data);
+    });
   }
 
-  // ── Helpers ──
   function formatTime(isoStr) {
     if (!isoStr) return '—';
     try {
@@ -816,7 +970,6 @@
         ? `<span class="status-badge status-completed">✓ Completed</span>`
         : `<span class="status-badge status-partial">⋯ Partial</span>`;
 
-      // Chala Jau Verdict badge
       let verdictBadge = `<span class="verdict-badge verdict-pending">Not reached</span>`;
       if (row.goodbye_final_verdict) {
         if (row.goodbye_final_verdict.includes('Roka')) {
@@ -846,7 +999,6 @@
       </tr>`;
     }).join('');
 
-    // Row click → open drawer
     tbody.querySelectorAll('tr').forEach(tr => {
       tr.addEventListener('click', (e) => {
         if (e.target.closest('.btn-row-action')) return;
@@ -877,7 +1029,6 @@
     }
   }
 
-  // ── Detail Drawer ──
   function openDrawer(row) {
     activeDrawerSessionId = row.sessionId || row.id;
     drawerTitle.textContent = `Session: ${shortId(activeDrawerSessionId)}`;
@@ -892,7 +1043,6 @@
 
     let html = '';
 
-    // 1. Lie detector
     if (row.lie_detector_question || row.lie_detector_answer) {
       html += `
         <div class="drawer-section-heading">🧠 Lie Detector Court</div>
@@ -906,7 +1056,6 @@
       `;
     }
 
-    // 2. Chala Jau / Goodbye Questions (All 5 Steps)
     const goodbyeCards = [];
     const goodbyeQuestionsList = [
       'Chala jaaun?',
@@ -940,7 +1089,6 @@
       `;
     }
 
-    // 3. Main 10 Quiz Questions
     const qaCards = [];
     for (let i = 1; i <= 10; i++) {
       const question = row[`q${i}_question`];
@@ -982,14 +1130,12 @@
   document.getElementById('drawerClose').addEventListener('click', closeDrawer);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeDrawer(); });
 
-  // ── Delete from Drawer ──
   drawerDelete.addEventListener('click', () => {
     if (activeDrawerSessionId) {
       window.confirmDeleteSingle(activeDrawerSessionId);
     }
   });
 
-  // ── Delete Confirmation Logic ──
   window.confirmDeleteSingle = function(sessionId) {
     if (!sessionId) return;
     pendingDeleteTarget = { type: 'single', sessionId };
@@ -1048,7 +1194,6 @@
     }
   });
 
-  // ── Search filter ──
   searchBox.addEventListener('input', () => {
     const q = searchBox.value.toLowerCase();
     const filtered = allData.filter(row =>
@@ -1058,12 +1203,10 @@
     renderTable(filtered);
   });
 
-  // ── Refresh ──
   document.getElementById('refreshBtn').addEventListener('click', () => {
     location.reload();
   });
 
-  // ── Export CSV ──
   document.getElementById('exportBtn').addEventListener('click', () => {
     if (allData.length === 0) { showToast('No data to export.', 'ℹ️'); return; }
 
@@ -1089,13 +1232,6 @@
     a.click();
     URL.revokeObjectURL(url);
     showToast('CSV export downloaded!', '📥');
-  });
-
-  // ── Initialize & listen ──
-  listenToAllResponses((data) => {
-    allData = data;
-    renderTable(data);
-    updateStats(data);
   });
 </script>
 
