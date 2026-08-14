@@ -3,8 +3,33 @@
 // Handles real-time saving and reading of user responses
 // ============================================================
 
-import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
-export { isFirebaseConfigured };
+let firebaseConfig = {
+  apiKey: "AIzaSyDSymqZ-QGpDnHA8DrdQvDPSWfRkVr-3pw",
+  authDomain: "sori-project.firebaseapp.com",
+  projectId: "sori-project",
+  storageBucket: "sori-project.firebasestorage.app",
+  messagingSenderId: "685891191908",
+  appId: "1:685891191908:web:119d7c6d2f9c741a900b71",
+  measurementId: "G-JLM99XNPXH"
+};
+
+export function isFirebaseConfigured() {
+  return Boolean(
+    firebaseConfig.apiKey &&
+    firebaseConfig.apiKey !== "YOUR_API_KEY" &&
+    firebaseConfig.projectId !== "YOUR_PROJECT_ID"
+  );
+}
+
+// Attempt to load override config if available
+try {
+  const customConfig = await import('./firebase-config.js').catch(() => null);
+  if (customConfig && customConfig.firebaseConfig) {
+    firebaseConfig = customConfig.firebaseConfig;
+  }
+} catch (e) {
+  // Use default configuration
+}
 
 let db = null;
 let firestoreInitialized = false;
@@ -16,7 +41,7 @@ export async function initFirebase() {
   if (firestoreInitialized) return db;
 
   if (!isFirebaseConfigured()) {
-    console.warn("⚠️ Firebase keys not configured in firebase-config.js yet. Using localStorage fallback.");
+    console.warn("⚠️ Firebase keys not configured. Using localStorage fallback.");
     return null;
   }
 

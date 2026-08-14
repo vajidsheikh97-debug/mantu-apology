@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>🔐 Admin Panel — Mantu Apology Responses</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fredoka:wght@400;600&display=swap" rel="stylesheet" />
@@ -42,7 +45,7 @@
       justify-content: center;
       padding: 1.5rem;
     }
-    .lockscreen-overlay.unlocked { display: none; }
+    .lockscreen-overlay.unlocked { display: none !important; }
 
     .lock-card {
       background: var(--surface);
@@ -54,6 +57,10 @@
       text-align: center;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
       animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
     }
 
     .lock-icon { font-size: 3rem; margin-bottom: 1rem; }
@@ -79,7 +86,7 @@
       color: var(--text);
       font-size: 1.8rem;
       font-weight: 700;
-      letter-spacing: 0.4em;
+      letter-spacing: 0.3em;
       text-align: center;
       padding: 0.6rem 1rem;
       width: 100%;
@@ -116,12 +123,6 @@
       transition: opacity 0.2s;
     }
     .btn-unlock:hover { opacity: 0.9; }
-
-    .lock-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 1rem;
-    }
 
     /* ── Header ── */
     .admin-header {
@@ -373,7 +374,6 @@
 
     .time-cell { color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
 
-    /* Action buttons in row */
     .btn-row-action {
       background: transparent;
       border: none;
@@ -387,9 +387,6 @@
     .btn-row-action:hover {
       background: var(--surface);
       color: var(--text);
-    }
-    .btn-row-delete {
-      color: var(--text-muted);
     }
     .btn-row-delete:hover {
       background: rgba(255, 107, 107, 0.15);
@@ -574,11 +571,7 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
 
-    .confirm-icon {
-      font-size: 2.8rem;
-      margin-bottom: 1rem;
-    }
-
+    .confirm-icon { font-size: 2.8rem; margin-bottom: 1rem; }
     .confirm-title {
       font-family: 'Fredoka', sans-serif;
       font-size: 1.3rem;
@@ -645,10 +638,7 @@
       align-items: center;
       gap: 0.6rem;
     }
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    .toast.show { transform: translateY(0); opacity: 1; }
 
     /* ── Config warning banner ── */
     .config-banner {
@@ -718,7 +708,7 @@
     <div class="config-banner-icon">⚠️</div>
     <div>
       <h3>Firebase not configured — showing localStorage data only</h3>
-      <p>Open <code>firebase-config.js</code> and paste your Firebase project keys to see live data across all visitors. Right now, only responses from <em>this browser</em> are shown.</p>
+      <p>Open <code>firebase-config.js</code> and paste your Firebase project keys to see live data across all visitors.</p>
     </div>
   </div>
 
@@ -814,6 +804,62 @@
   <span id="toastMsg">Action completed</span>
 </div>
 
+<!-- 1. STANDALONE IMMEDIATE PIN SCRIPT (Works even if network or module imports fail) -->
+<script>
+  (function() {
+    const MASTER_PIN = '82543';
+    const lockScreen = document.getElementById('lockScreen');
+    const pinInput   = document.getElementById('pinInput');
+    const unlockBtn  = document.getElementById('unlockBtn');
+
+    function checkAndUnlock() {
+      const entered = (pinInput.value || '').trim();
+      const savedPin = localStorage.getItem('mantu_admin_custom_pin') || MASTER_PIN;
+
+      if (entered === savedPin || entered === MASTER_PIN) {
+        sessionStorage.setItem('mantu_admin_auth', 'true');
+        lockScreen.classList.add('unlocked');
+        if (window.onAdminUnlocked) {
+          window.onAdminUnlocked();
+        }
+      } else {
+        pinInput.classList.add('shake');
+        pinInput.value = '';
+        setTimeout(() => pinInput.classList.remove('shake'), 450);
+        alert('Galat PIN! Sahi PIN enter karein.');
+      }
+    }
+
+    // Auto-unlock if already authenticated in this session
+    if (sessionStorage.getItem('mantu_admin_auth') === 'true') {
+      lockScreen.classList.add('unlocked');
+    }
+
+    unlockBtn.addEventListener('click', checkAndUnlock);
+    pinInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkAndUnlock();
+    });
+
+    // Change PIN handler
+    document.getElementById('changePinBtn').addEventListener('click', function() {
+      const current = prompt('Current PIN enter karein:');
+      const savedPin = localStorage.getItem('mantu_admin_custom_pin') || MASTER_PIN;
+      if (current !== savedPin && current !== MASTER_PIN) {
+        alert('Current PIN galat hai!');
+        return;
+      }
+      const newP = prompt('Naya PIN enter karein (4 se 8 digits):');
+      if (!newP || newP.trim().length < 4) {
+        alert('PIN kam se kam 4 digits ka hona chahiye.');
+        return;
+      }
+      localStorage.setItem('mantu_admin_custom_pin', newP.trim());
+      alert('PIN successfully badal gaya! ✅');
+    });
+  })();
+</script>
+
+<!-- 2. DATA APP MODULE (Loads Firebase and renders tables) -->
 <script type="module">
   import {
     listenToAllResponses,
@@ -822,73 +868,6 @@
     isFirebaseConfigured
   } from './firebase-service.js';
 
-  // ── PIN AUTHENTICATION ──
-  // New PIN: 82543 (stored as SHA-256 hash)
-  const DEFAULT_PIN_HASH = 'fa321b69e3dff866d431974f7772808154e2652df2662c22b76de891a230ca92';
-  
-  async function sha256(str) {
-    try {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    } catch {
-      return '';
-    }
-  }
-
-  const lockScreen  = document.getElementById('lockScreen');
-  const pinInput    = document.getElementById('pinInput');
-  const unlockBtn   = document.getElementById('unlockBtn');
-  const changePinBtn= document.getElementById('changePinBtn');
-
-  // Check if session is already authenticated
-  if (sessionStorage.getItem('mantu_admin_auth') === 'true') {
-    lockScreen.classList.add('unlocked');
-    initAdminData();
-  }
-
-  async function attemptUnlock() {
-    const pin = pinInput.value.trim();
-    if (!pin) return;
-
-    const currentHash = localStorage.getItem('mantu_admin_pin_hash') || DEFAULT_PIN_HASH;
-    const inputHash = await sha256(pin);
-
-    // Matches if input hash matches OR direct pin is 82543 (failsafe)
-    if (inputHash === currentHash || pin === '82543') {
-      sessionStorage.setItem('mantu_admin_auth', 'true');
-      lockScreen.classList.add('unlocked');
-      showToast('Welcome back, Admin! 🔓', '👋');
-      initAdminData();
-    } else {
-      pinInput.classList.add('shake');
-      pinInput.value = '';
-      setTimeout(() => pinInput.classList.remove('shake'), 500);
-      showToast('Galat PIN! Dubara try karein.', '❌');
-    }
-  }
-
-  unlockBtn.addEventListener('click', attemptUnlock);
-  pinInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptUnlock(); });
-
-  changePinBtn.addEventListener('click', async () => {
-    const oldPin = prompt('Current PIN enter karein:');
-    if (!oldPin) return;
-    const currentHash = localStorage.getItem('mantu_admin_pin_hash') || DEFAULT_PIN_HASH;
-    if (await sha256(oldPin.trim()) !== currentHash) {
-      alert('Current PIN galat hai!');
-      return;
-    }
-    const newPin = prompt('Naya PIN enter karein (4 to 8 digits):');
-    if (!newPin || newPin.trim().length < 4) {
-      alert('PIN kam se kam 4 digits ka hona chahiye.');
-      return;
-    }
-    const newHash = await sha256(newPin.trim());
-    localStorage.setItem('mantu_admin_pin_hash', newHash);
-    showToast('PIN successfully badal gaya! 🔑', '✅');
-  });
-
-  // ── ADMIN DATA INITIALIZATION ──
   let allData = [];
   let pendingDeleteTarget = null;
   let activeDrawerSessionId = null;
@@ -942,6 +921,14 @@
     });
   }
 
+  // Hook for standalone unlock script
+  window.onAdminUnlocked = initAdminData;
+
+  // If already unlocked
+  if (sessionStorage.getItem('mantu_admin_auth') === 'true') {
+    initAdminData();
+  }
+
   function formatTime(isoStr) {
     if (!isoStr) return '—';
     try {
@@ -964,7 +951,7 @@
       tbody.innerHTML = `<tr><td colspan="9">
         <div class="state-placeholder">
           <div class="big-emoji">🐱</div>
-          <p>Koi response nahi mila.<br/>Apology website open karke test karo!</p>
+          <p>Koi response nahi mila abhi tak.<br/>Apology website open karke test karo!</p>
         </div></td></tr>`;
       return;
     }
