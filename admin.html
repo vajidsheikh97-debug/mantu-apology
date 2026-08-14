@@ -703,15 +703,6 @@
 <!-- ── Main ── -->
 <main class="admin-main">
 
-  <!-- Config warning -->
-  <div class="config-banner" id="configBanner">
-    <div class="config-banner-icon">⚠️</div>
-    <div>
-      <h3>Firebase not configured — showing localStorage data only</h3>
-      <p>Open <code>firebase-config.js</code> and paste your Firebase project keys to see live data across all visitors.</p>
-    </div>
-  </div>
-
   <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -878,7 +869,6 @@
   const statRoka     = document.getElementById('statRoka');
   const statLast     = document.getElementById('statLast');
   const searchBox    = document.getElementById('searchBox');
-  const configBanner = document.getElementById('configBanner');
   const connDot      = document.getElementById('connectionDot');
   const overlay      = document.getElementById('drawerOverlay');
   const drawerTitle  = document.getElementById('drawerTitle');
@@ -905,14 +895,8 @@
   }
 
   function initAdminData() {
-    if (isFirebaseConfigured()) {
-      configBanner.classList.add('hidden');
-      connDot.style.background = '#6bcb77';
-      connDot.style.boxShadow  = '0 0 6px #6bcb77';
-    } else {
-      connDot.style.background = '#ffd93d';
-      connDot.style.boxShadow  = '0 0 6px #ffd93d';
-    }
+    connDot.style.background = '#6bcb77';
+    connDot.style.boxShadow  = '0 0 6px #6bcb77';
 
     listenToAllResponses((data) => {
       allData = data;
