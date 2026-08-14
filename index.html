@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ek special, funny aur cute apology website — sirf Mantu ke liye. 🐱" />
+  <title>Mantu ke liye — Ek Ajeeb Si Maafi 🙏</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Floating particles background -->
+  <div class="particles-container" id="particles" aria-hidden="true"></div>
+
+  <!-- Top Navigation -->
+  <nav class="top-nav" role="navigation" aria-label="Website Controls">
+    <div class="nav-brand">🐱 Maafi Inc.</div>
+    <div class="nav-controls">
+      <button class="btn-icon" id="soundToggle" title="Sound toggle" aria-label="Toggle sound effects">
+        <span id="soundIcon">🔊</span>
+      </button>
+      <button class="btn-icon" id="restartBtn" title="Restart from beginning" aria-label="Restart website">
+        🔄
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="main-wrapper" id="mainWrapper">
+
+    <!-- ===========================
+         SECTION 1: LANDING PAGE
+    ============================ -->
+    <section class="screen active" id="screen-landing" aria-label="Landing screen">
+      <div class="card card-landing animate-in">
+        <div class="emoji-hero">👀</div>
+        <h1 class="landing-title">Mantoooooooo…</h1>
+        <p class="landing-subtitle">Damn, this website really went out of its way to exist exclusively for you.</p>
+        <div class="warning-box">
+          <span class="warning-icon">⚠️</span>
+          <p>Is website ko banane wala insaan<br /> bda nekdil <strong>bcha</strong> hein.</p>
+        </div>
+        <p class="landing-hint">Aage click karna completely optional hai.<br />But curiosity toh ho rahi hogi… 👀</p>
+        <button class="btn btn-primary" id="landingBtn" aria-label="Start the apology experience">
+          Okay, dikhao 😂 →
+        </button>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 2: APOLOGY PAGE
+    ============================ -->
+    <section class="screen" id="screen-apology" aria-label="Apology screen">
+      <div class="card card-apology animate-in">
+
+        <!-- Funny Part -->
+        <div class="apology-block apology-funny">
+          <div class="emoji-medium">🙏</div>
+          <h2>Ek chhoti si maafi…</h2>
+          <div class="poem-box">
+            <p>I owe you a sorry pizza,,</p>
+            <p> extra cheese,</p>
+            <p>zero attitude, and</p>
+            <p>a very sincere apology on the side too.</p>
+            <p><strong> Hurreyyyyyyy 😂</strong></p>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="section-divider">
+          <span>···</span>
+        </div>
+
+        <!-- Genuine Part -->
+        <div class="apology-block apology-genuine">
+          <div class="genuine-label">Okay, jokes apart. 🥺</div>
+
+          <!-- Big animated SORRY -->
+          <div class="big-sorry-wrapper" id="bigSorryWrapper" aria-label="A big sorry, growing in size">
+            <span class="big-sorry-word" id="bigSorryWord">SORRY MANTU</span>
+          </div>
+
+          <div class="apology-image-wrapper">
+            <img
+              src="assets/images/200w.gif"
+              alt="A heartfelt sorry moment"
+              class="apology-img"
+            />
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="apologyBtn" aria-label="Go to the court section">
+          Court mein chalo 👩‍⚖️ →
+        </button>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 3: COURT PAGE
+    ============================ -->
+    <section class="screen" id="screen-court" aria-label="Funny court section">
+      <div class="card card-court animate-in">
+        <div class="court-header">
+          <div class="emoji-medium">⚖️</div>
+          <div class="case-badge">CASE #001</div>
+          <h2 class="court-title">The Mantu-Wajid Conflict™<br /><span class="court-subtitle">— A Catastrophe in Modern History™</span></h2>
+        </div>
+
+        <div class="verdict-table">
+          <div class="verdict-row">
+            <span class="verdict-label">Accused</span>
+            <span class="verdict-value">Wajid</span>
+          </div>
+          <div class="verdict-row">
+            <span class="verdict-label">Brain status</span>
+            <span class="verdict-value">Temporarily unavailable 🧠💀</span>
+          </div>
+          <div class="verdict-row">
+            <span class="verdict-label">Crime</span>
+            <span class="verdict-value">🐸 Situation Ko Aur Kharab Karne Ka Act</span>
+          </div>
+          <div class="verdict-row verdict-final">
+            <span class="verdict-label">Verdict</span>
+            <span class="verdict-value">Vo thodi si galti ho gayi. 😔</span>
+          </div>
+        </div>
+
+        <div class="stamp-area">
+          <div class="stamp">CASE<br/>ACCEPTED</div>
+        </div>
+
+        <button class="btn btn-primary" id="courtBtn" aria-label="Continue the investigation">
+          Investigation continue →
+        </button>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 4: LIE DETECTOR
+    ============================ -->
+    <section class="screen" id="screen-liedetector" aria-label="Lie detector section">
+      <div class="card card-liedetector animate-in">
+        <div class="scanner-header">
+          <div class="emoji-medium">🤖</div>
+          <div class="official-badge">OFFICIAL</div>
+          <h2>LIE DETECTOR™</h2>
+          <p class="scanner-subtitle">Powered by Mantu AI v9.9</p>
+        </div>
+
+        <div class="scanner-question">
+          <p>Kya Wajid ko apni galti ka regret hai?</p>
+        </div>
+
+        <div class="scanner-buttons" id="scannerButtons">
+          <button class="btn btn-yes" id="lieYesBtn" aria-label="Yes, Wajid has regret">😇 YES</button>
+          <button class="btn btn-no" id="lieNoBtn" aria-label="No, Wajid doesn't have regret">😭 NO</button>
+        </div>
+
+        <div class="scanner-progress hidden" id="scannerProgress">
+          <div class="scan-animation">
+            <div class="scan-bar" id="scanBar"></div>
+          </div>
+          <div class="scan-percentage" id="scanPercentage">0%</div>
+          <div class="scan-label" id="scanLabel">Analysing neural patterns...</div>
+        </div>
+
+        <div class="scanner-result hidden" id="scannerResult">
+          <div class="result-number">99.99%</div>
+          <div class="result-label">REGRET DETECTED 💔</div>
+          <div class="result-sub">Remaining 0.01% = System Error 😂</div>
+          <button class="btn btn-primary" id="startQuestionsBtn" aria-label="Start the questions section">
+            Sawal Jawaab Shuru Karein 🐱 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 5: QUESTIONS
+    ============================ -->
+    <section class="screen" id="screen-questions" aria-label="Interactive questions section">
+
+      <!-- Progress bar -->
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-info">
+          <span class="progress-paws" id="progressPaws">🐾</span>
+          <span class="progress-text" id="progressText">Question 1 / 10</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+        </div>
+      </div>
+
+      <div class="card card-question animate-in" id="questionCard">
+        <div class="question-number" id="questionNumber">Q1</div>
+        <div class="question-text" id="questionText">Loading...</div>
+        <div class="answer-options" id="answerOptions">
+          <!-- Options injected by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 6: MOOD FRESH
+    ============================ -->
+    <section class="screen" id="screen-moodfresh" aria-label="Mood fresh bonus round">
+      <div class="card card-moodfresh animate-in">
+        <div class="bonus-header">
+          <div class="emoji-medium">🎁</div>
+          <div class="bonus-badge">BONUS ROUND</div>
+          <h2>Ab apology-vopology chhodo.</h2>
+          <p>Mood thoda fresh karte hain 😂</p>
+        </div>
+
+        <div class="mood-videos-grid">
+          <div class="video-box-card">
+            <div class="video-box-header">
+              <span class="video-box-emoji">🍿</span>
+              <span class="video-box-title">Special Video 1</span>
+            </div>
+            <div class="video-player-container">
+              <video
+                src="assets/videos/1.mp4"
+                controls
+                playsinline
+                preload="metadata"
+                class="mood-video-player"
+              ></video>
+            </div>
+          </div>
+
+          <div class="video-box-card">
+            <div class="video-box-header">
+              <span class="video-box-emoji">🎬</span>
+              <span class="video-box-title">Special Video 2</span>
+            </div>
+            <div class="video-player-container">
+              <video
+                src="assets/videos/2.mp4"
+                controls
+                playsinline
+                preload="metadata"
+                class="mood-video-player"
+              ></video>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="moodfreshBtn" aria-label="Continue to goodbye">
+          Aage Chalein? 🥺 →
+        </button>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 7: GOODBYE
+    ============================ -->
+    <section class="screen" id="screen-goodbye" aria-label="Goodbye section">
+      <div class="card card-goodbye animate-in" id="goodbyeCard">
+        <!-- Content injected by JS -->
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 8: INSTAGRAM FINALE
+    ============================ -->
+    <section class="screen" id="screen-finale" aria-label="Final screen and Instagram follow">
+      <div class="card card-finale animate-in">
+        <div class="finale-emoji">📸</div>
+        <h2 class="finale-title">Shukriya, Mantu!</h2>
+        <p class="finale-sub">Agar aapka dil ab hame follow karne ka kar raha hai…</p>
+        <div class="insta-handle">@vajid.sheikh.1</div>
+        <a class="btn btn-insta" href="https://www.instagram.com/vajid.sheikh.1" target="_blank" rel="noopener noreferrer" id="instaFollowBtn" aria-label="Follow on Instagram">
+          📷 Follow on Instagram
+        </a>
+        <button class="btn btn-secondary" id="replayBtn" aria-label="Replay the website from beginning">
+          🔄 Phir se dekhna hai 😂
+        </button>
+
+        <!-- Confetti canvas -->
+        <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===========================
+       ANSWER POPUP MODAL (Stage 1)
+  ============================ -->
+  <div class="modal-overlay hidden" id="answerModal" role="dialog" aria-modal="true" aria-labelledby="answerModalTitle">
+    <div class="modal-card modal-answer">
+      <div class="modal-emoji" id="answerModalEmoji">🐒</div>
+      <h3 class="modal-title" id="answerModalTitle">Species identified.</h3>
+      <p class="modal-text" id="answerModalText">Loading...</p>
+      <button class="modal-close" id="answerModalClose" aria-label="Close answer popup">✕</button>
+    </div>
+  </div>
+
+  <!-- ===========================
+       CAT INTERMISSION MODAL (Stage 2)
+  ============================ -->
+  <div class="modal-overlay hidden" id="catModal" role="dialog" aria-modal="true" aria-labelledby="catModalTitle">
+    <div class="modal-card modal-cat">
+      <div class="cat-display" id="catDisplay" aria-hidden="true"></div>
+      <h3 class="modal-title" id="catModalTitle">CAT INTERMISSION 😂</h3>
+      <p class="modal-text" id="catModalText">Loading...</p>
+      <button class="modal-close" id="catModalClose" aria-label="Close cat intermission">✕</button>
+    </div>
+  </div>
+
+  <!-- ===========================
+       NO BRANCH OVERLAY
+  ============================ -->
+  <div class="modal-overlay hidden" id="noBranchModal" role="dialog" aria-modal="true" aria-labelledby="noBranchTitle">
+    <div class="modal-card modal-no-branch">
+      <div class="modal-emoji">👀</div>
+      <h3 class="modal-title" id="noBranchTitle">Ohhh…</h3>
+      <p class="modal-text">Itni jaldi permission cancel? 😂</p>
+      <p class="modal-text">Thank You Mantooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!</p>
+      <button class="btn btn-primary" id="noBranchContinue" aria-label="Continue to Instagram">
+        Chalein phir 📸 →
+      </button>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>

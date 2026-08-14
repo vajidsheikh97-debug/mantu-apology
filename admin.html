@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔐 Admin Panel — Mantu Apology Responses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fredoka:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f0f13;
+      --surface:     #18181f;
+      --surface2:    #22222d;
+      --border:      #2e2e3a;
+      --accent:      #ff6b6b;
+      --accent-hover:#ff5252;
+      --accent2:     #ffd93d;
+      --accent3:     #6bcb77;
+      --accent4:     #4d96ff;
+      --text:        #e8e8f0;
+      --text-muted:  #7a7a90;
+      --radius:      14px;
+      --radius-sm:   8px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .admin-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-brand h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-header {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-header:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-header.btn-danger {
+      color: var(--accent);
+      border-color: rgba(255, 107, 107, 0.3);
+    }
+    .btn-header.btn-danger:hover {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: var(--accent);
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent3);
+      box-shadow: 0 0 6px var(--accent3);
+      animation: pulse-dot 2s infinite;
+      display: inline-block;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── Main ── */
+    .admin-main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ── Stats bar ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: border-color 0.2s ease;
+    }
+    .stat-card:hover { border-color: var(--accent); }
+
+    .stat-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: 'Fredoka', sans-serif;
+      line-height: 1;
+    }
+
+    .stat-value.accent  { color: var(--accent); }
+    .stat-value.accent2 { color: var(--accent2); }
+    .stat-value.accent3 { color: var(--accent3); }
+    .stat-value.accent4 { color: var(--accent4); }
+    .stat-value.default { color: var(--text); }
+
+    /* ── Section header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .search-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      width: 260px;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus { border-color: var(--accent); }
+    .search-box::placeholder { color: var(--text-muted); }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 960px;
+    }
+
+    thead {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.9rem 1.2rem;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    td {
+      padding: 0.85rem 1.2rem;
+      font-size: 0.82rem;
+      vertical-align: middle;
+    }
+
+    .session-id {
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: var(--surface2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .status-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .status-completed { background: rgba(107, 203, 119, 0.15); color: var(--accent3); }
+    .status-partial   { background: rgba(255, 217, 61, 0.15);  color: var(--accent2); }
+
+    .verdict-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    .verdict-roka { background: rgba(255, 107, 107, 0.15); color: var(--accent); border: 1px solid rgba(255, 107, 107, 0.3); }
+    .verdict-jane { background: rgba(255, 217, 61, 0.15); color: var(--accent2); border: 1px solid rgba(255, 217, 61, 0.3); }
+    .verdict-pending { background: var(--surface2); color: var(--text-muted); }
+
+    .time-cell { color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
+
+    /* Action buttons in row */
+    .btn-row-action {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-row-action:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    .btn-row-delete {
+      color: var(--text-muted);
+    }
+    .btn-row-delete:hover {
+      background: rgba(255, 107, 107, 0.15);
+      color: var(--accent);
+    }
+
+    /* ── Detail drawer ── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .drawer-overlay.open { display: flex; }
+
+    .drawer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) 0 0;
+      width: 100%;
+      max-width: 980px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2rem;
+      animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .drawer-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .drawer-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .drawer-close {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .drawer-close:hover { color: var(--text); background: var(--border); }
+
+    .btn-drawer-delete {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-drawer-delete:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .drawer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .meta-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .meta-chip span:first-child {
+      color: var(--text-muted);
+      margin-right: 0.3em;
+    }
+
+    .drawer-section-heading {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin: 1.5rem 0 0.8rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .answer-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      transition: border-color 0.2s;
+    }
+    .answer-card:hover { border-color: var(--accent4); }
+
+    .answer-card.highlight-goodbye {
+      border-color: rgba(255, 107, 107, 0.4);
+      background: rgba(255, 107, 107, 0.05);
+    }
+
+    .answer-card-q {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    .answer-card-question {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      line-height: 1.4;
+    }
+
+    .answer-card-answer {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── Confirmation Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .confirm-modal {
+      background: var(--surface);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: var(--radius);
+      max-width: 440px;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+      animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .confirm-icon {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .confirm-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .confirm-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+    }
+
+    .btn-modal {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-modal-cancel {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-modal-cancel:hover { background: var(--border); }
+
+    .btn-modal-delete {
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: #fff;
+    }
+    .btn-modal-delete:hover { background: var(--accent-hover); }
+
+    /* ── Toast notification ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      z-index: 400;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Empty / loading states ── */
+    .state-placeholder {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+    .state-placeholder .big-emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .state-placeholder p { font-size: 0.9rem; line-height: 1.6; }
+
+    /* ── Config warning banner ── */
+    .config-banner {
+      background: rgba(255, 107, 107, 0.08);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .config-banner-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .config-banner h3 { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-bottom: 0.3rem; }
+    .config-banner p  { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+    .config-banner.hidden { display: none; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 600px) {
+      .admin-main { padding: 1rem; }
+      .admin-header { padding: 0.8rem 1rem; }
+      .search-box { width: 140px; }
+      th, td { padding: 0.7rem 0.8rem; }
+      .drawer { padding: 1.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="admin-header">
+  <div class="header-brand">
+    <div>🐱</div>
+    <h1>Mantu Responses</h1>
+    <span class="header-badge">Admin</span>
+  </div>
+  <div class="header-actions">
+    <span class="status-dot" id="connectionDot" title="Checking connection..."></span>
+    <button class="btn-header" id="refreshBtn">⟳ Refresh</button>
+    <button class="btn-header" id="exportBtn">↓ Export CSV</button>
+    <button class="btn-header btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+    <a href="index.html" class="btn-header" style="text-decoration:none;">← Back to Site</a>
+  </div>
+</header>
+
+<!-- ── Main ── -->
+<main class="admin-main">
+
+  <!-- Config warning -->
+  <div class="config-banner" id="configBanner">
+    <div class="config-banner-icon">⚠️</div>
+    <div>
+      <h3>Firebase not configured — showing localStorage data only</h3>
+      <p>Open <code>firebase-config.js</code> and paste your Firebase project keys to see live data across all visitors. Right now, only responses from <em>this browser</em> are shown.</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Responses</div>
+      <div class="stat-value default" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value accent3" id="statCompleted">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Mantu Ne Roka (NO)</div>
+      <div class="stat-value accent" id="statRoka">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last Response</div>
+      <div class="stat-value accent2" id="statLast" style="font-size:0.95rem; margin-top:0.25rem;">—</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="section-header">
+    <div class="section-title">All User Responses</div>
+    <input class="search-box" id="searchBox" type="text" placeholder="🔍 Search session ID or answers..." />
+  </div>
+
+  <div class="table-wrap">
+    <table id="responsesTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Session ID</th>
+          <th>Status</th>
+          <th>Chala Jau Verdict 🚪</th>
+          <th>Lie Detector</th>
+          <th>Started At</th>
+          <th>Q1 Answer</th>
+          <th>Q2 Answer</th>
+          <th style="text-align:center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="responsesBody">
+        <tr>
+          <td colspan="9">
+            <div class="state-placeholder">
+              <div class="big-emoji">⏳</div>
+              <p>Loading responses…</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- ── Detail Drawer ── -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitle">Session Details</div>
+      <div class="drawer-header-actions">
+        <button class="btn-drawer-delete" id="drawerDeleteBtn">🗑️ Delete Response</button>
+        <button class="drawer-close" id="drawerClose">✕</button>
+      </div>
+    </div>
+    <div class="drawer-meta" id="drawerMeta"></div>
+    <div id="drawerContent"></div>
+  </div>
+</div>
+
+<!-- ── Delete Confirmation Modal ── -->
+<div class="modal-overlay" id="deleteModalOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title" id="modalTitle">Delete Response?</div>
+    <div class="confirm-desc" id="modalDesc">
+      Kya aap sach me is response ko Firebase database aur localStorage se permanently delete karna chahte hain?
+    </div>
+    <div class="confirm-actions">
+      <button class="btn-modal btn-modal-cancel" id="modalCancelBtn">Cancel</button>
+      <button class="btn-modal btn-modal-delete" id="modalConfirmBtn">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Notification ── -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Action completed</span>
+</div>
+
+<script type="module">
+  import {
+    listenToAllResponses,
+    deleteSessionData,
+    clearAllResponses,
+    isFirebaseConfigured
+  } from './firebase-service.js';
+
+  // ── State ──
+  let allData = [];
+  let pendingDeleteTarget = null; // { type: 'single', sessionId: '...' } | { type: 'all' }
+  let activeDrawerSessionId = null;
+
+  // ── DOM refs ──
+  const tbody        = document.getElementById('responsesBody');
+  const statTotal    = document.getElementById('statTotal');
+  const statCompleted= document.getElementById('statCompleted');
+  const statRoka     = document.getElementById('statRoka');
+  const statLast     = document.getElementById('statLast');
+  const searchBox    = document.getElementById('searchBox');
+  const configBanner = document.getElementById('configBanner');
+  const connDot      = document.getElementById('connectionDot');
+  const overlay      = document.getElementById('drawerOverlay');
+  const drawerTitle  = document.getElementById('drawerTitle');
+  const drawerMeta   = document.getElementById('drawerMeta');
+  const drawerContent= document.getElementById('drawerContent');
+  const drawerDelete = document.getElementById('drawerDeleteBtn');
+
+  // Modal refs
+  const deleteModal  = document.getElementById('deleteModalOverlay');
+  const modalTitle   = document.getElementById('modalTitle');
+  const modalDesc    = document.getElementById('modalDesc');
+  const modalCancel  = document.getElementById('modalCancelBtn');
+  const modalConfirm = document.getElementById('modalConfirmBtn');
+  const clearAllBtn  = document.getElementById('clearAllBtn');
+
+  // Toast ref
+  const toast        = document.getElementById('toast');
+  const toastMsg     = document.getElementById('toastMsg');
+  const toastIcon    = document.getElementById('toastIcon');
+
+  function showToast(msg, icon = '✅') {
+    toastMsg.textContent = msg;
+    toastIcon.textContent = icon;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // ── Show/hide config banner based on Firebase setup ──
+  if (isFirebaseConfigured()) {
+    configBanner.classList.add('hidden');
+    connDot.style.background = '#6bcb77';
+    connDot.style.boxShadow  = '0 0 6px #6bcb77';
+  } else {
+    connDot.style.background = '#ffd93d';
+    connDot.style.boxShadow  = '0 0 6px #ffd93d';
+  }
+
+  // ── Helpers ──
+  function formatTime(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const d = new Date(isoStr);
+      if (isNaN(d)) return isoStr;
+      return d.toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch { return isoStr; }
+  }
+
+  function shortId(id) {
+    if (!id) return '—';
+    return id.length > 18 ? id.slice(0, 8) + '…' + id.slice(-6) : id;
+  }
+
+  function renderTable(data) {
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9">
+        <div class="state-placeholder">
+          <div class="big-emoji">🐱</div>
+          <p>Koi response nahi mila.<br/>Apology website open karke test karo!</p>
+        </div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map((row, i) => {
+      const status = row.status === 'completed' ? 'completed' : 'partial';
+      const badge  = status === 'completed'
+        ? `<span class="status-badge status-completed">✓ Completed</span>`
+        : `<span class="status-badge status-partial">⋯ Partial</span>`;
+
+      // Chala Jau Verdict badge
+      let verdictBadge = `<span class="verdict-badge verdict-pending">Not reached</span>`;
+      if (row.goodbye_final_verdict) {
+        if (row.goodbye_final_verdict.includes('Roka')) {
+          verdictBadge = `<span class="verdict-badge verdict-roka">${row.goodbye_final_verdict}</span>`;
+        } else {
+          verdictBadge = `<span class="verdict-badge verdict-jane">${row.goodbye_final_verdict}</span>`;
+        }
+      }
+
+      const lie = row.lie_detector_answer || '—';
+      const q1  = row['q1_answer'] || '—';
+      const q2  = row['q2_answer'] || '—';
+
+      return `<tr data-idx="${i}">
+        <td>${i + 1}</td>
+        <td><span class="session-id" title="${row.sessionId || ''}">${shortId(row.sessionId)}</span></td>
+        <td>${badge}</td>
+        <td>${verdictBadge}</td>
+        <td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${lie}</td>
+        <td class="time-cell">${formatTime(row.startedAt)}</td>
+        <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${q1}</td>
+        <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${q2}</td>
+        <td style="text-align:center; white-space:nowrap;" onclick="event.stopPropagation()">
+          <button class="btn-row-action" title="View details" onclick="window.viewRowDetail(${i})">👁️ View</button>
+          <button class="btn-row-action btn-row-delete" title="Delete from Firebase" onclick="window.confirmDeleteSingle('${row.sessionId || row.id}')">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    // Row click → open drawer
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-row-action')) return;
+        const idx = parseInt(tr.dataset.idx);
+        openDrawer(data[idx]);
+      });
+    });
+  }
+
+  window.viewRowDetail = function(idx) {
+    if (allData[idx]) openDrawer(allData[idx]);
+  };
+
+  function updateStats(data) {
+    const completed = data.filter(d => d.status === 'completed').length;
+    const rokaCount = data.filter(d => (d.goodbye_final_verdict || '').includes('Roka')).length;
+
+    statTotal.textContent     = data.length;
+    statCompleted.textContent = completed;
+    statRoka.textContent      = rokaCount;
+
+    if (data.length > 0) {
+      const latest = data[0];
+      const d = latest.completedAt || latest.startedAt || latest.lastUpdated;
+      statLast.textContent = d ? formatTime(d) : '—';
+    } else {
+      statLast.textContent = '—';
+    }
+  }
+
+  // ── Detail Drawer ──
+  function openDrawer(row) {
+    activeDrawerSessionId = row.sessionId || row.id;
+    drawerTitle.textContent = `Session: ${shortId(activeDrawerSessionId)}`;
+
+    drawerMeta.innerHTML = [
+      ['Session ID', activeDrawerSessionId || '—'],
+      ['Status',     row.status || 'partial'],
+      ['Started',    formatTime(row.startedAt)],
+      ['Completed',  formatTime(row.completedAt)],
+      ['Updated',    formatTime(row.lastUpdated)],
+    ].map(([k, v]) => `<div class="meta-chip"><span>${k}:</span>${v}</div>`).join('');
+
+    let html = '';
+
+    // 1. Lie detector
+    if (row.lie_detector_question || row.lie_detector_answer) {
+      html += `
+        <div class="drawer-section-heading">🧠 Lie Detector Court</div>
+        <div class="answers-grid">
+          <div class="answer-card">
+            <div class="answer-card-q">Lie Detector</div>
+            <div class="answer-card-question">${row.lie_detector_question || 'Wajid sach bol raha hai?'}</div>
+            <div class="answer-card-answer">${row.lie_detector_answer || '—'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. Chala Jau / Goodbye Questions (All 5 Steps)
+    const goodbyeCards = [];
+    const goodbyeQuestionsList = [
+      'Chala jaaun?',
+      'Sach me jaau??',
+      'Dekh lo madam…',
+      'Pakka jaau??',
+      'Final final final?'
+    ];
+
+    for (let i = 1; i <= 5; i++) {
+      const qText = row[`goodbye_step_${i}_question`] || `Step ${i}: ${goodbyeQuestionsList[i - 1]}`;
+      const aText = row[`goodbye_step_${i}_answer`];
+      if (aText) {
+        goodbyeCards.push(`
+          <div class="answer-card highlight-goodbye">
+            <div class="answer-card-q">Chala Jaau — Step ${i}</div>
+            <div class="answer-card-question">${qText}</div>
+            <div class="answer-card-answer" style="color: ${aText.includes('NO') ? 'var(--accent)' : 'var(--accent2)'}">${aText}</div>
+          </div>
+        `);
+      }
+    }
+
+    if (goodbyeCards.length > 0 || row.goodbye_final_verdict) {
+      html += `
+        <div class="drawer-section-heading">🚪 "Chala Jau" Goodbye Sequence (${goodbyeCards.length} steps recorded)</div>
+        ${row.goodbye_final_verdict ? `<div style="margin-bottom:0.8rem; font-size:0.85rem; color:var(--accent); font-weight:600;">Verdict: ${row.goodbye_final_verdict}</div>` : ''}
+        <div class="answers-grid">
+          ${goodbyeCards.join('')}
+        </div>
+      `;
+    }
+
+    // 3. Main 10 Quiz Questions
+    const qaCards = [];
+    for (let i = 1; i <= 10; i++) {
+      const question = row[`q${i}_question`];
+      const answer   = row[`q${i}_answer`];
+      if (question || answer) {
+        qaCards.push(`
+          <div class="answer-card">
+            <div class="answer-card-q">Question ${i}</div>
+            <div class="answer-card-question">${question || '—'}</div>
+            <div class="answer-card-answer">${answer || 'Not answered'}</div>
+          </div>`);
+      }
+    }
+
+    if (qaCards.length > 0) {
+      html += `
+        <div class="drawer-section-heading">📝 Main Quiz (10 Questions)</div>
+        <div class="answers-grid">
+          ${qaCards.join('')}
+        </div>
+      `;
+    }
+
+    if (!html) {
+      html = `<p style="color:var(--text-muted); font-size:0.85rem; padding:2rem 0; text-align:center;">Koi jawab record nahi hua abhi tak is session me.</p>`;
+    }
+
+    drawerContent.innerHTML = html;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    activeDrawerSessionId = null;
+  }
+
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeDrawer(); });
+
+  // ── Delete from Drawer ──
+  drawerDelete.addEventListener('click', () => {
+    if (activeDrawerSessionId) {
+      window.confirmDeleteSingle(activeDrawerSessionId);
+    }
+  });
+
+  // ── Delete Confirmation Logic ──
+  window.confirmDeleteSingle = function(sessionId) {
+    if (!sessionId) return;
+    pendingDeleteTarget = { type: 'single', sessionId };
+    modalTitle.textContent = 'Delete Response? 🗑️';
+    modalDesc.innerHTML = `Kya aap sach me session <strong style="color:var(--text); font-family:monospace;">${shortId(sessionId)}</strong> ko Firebase database se permanently delete karna chahte hain?`;
+    deleteModal.classList.add('open');
+  };
+
+  clearAllBtn.addEventListener('click', () => {
+    if (allData.length === 0) {
+      showToast('No responses to delete.', 'ℹ️');
+      return;
+    }
+    pendingDeleteTarget = { type: 'all' };
+    modalTitle.textContent = 'Clear ALL Responses? ⚠️';
+    modalDesc.innerHTML = `Kya aap sach me <strong style="color:var(--accent);">${allData.length} saare user responses</strong> ko Firebase database aur localStorage se permanently delete karna chahte hain?<br/><br/><small style="color:var(--accent);">Ye action undo nahi kiya ja sakta!</small>`;
+    deleteModal.classList.add('open');
+  });
+
+  function closeConfirmModal() {
+    deleteModal.classList.remove('open');
+    pendingDeleteTarget = null;
+  }
+
+  modalCancel.addEventListener('click', closeConfirmModal);
+  deleteModal.addEventListener('click', (e) => {
+    if (e.target === deleteModal) closeConfirmModal();
+  });
+
+  modalConfirm.addEventListener('click', async () => {
+    if (!pendingDeleteTarget) return;
+
+    modalConfirm.disabled = true;
+    modalConfirm.textContent = 'Deleting…';
+
+    try {
+      if (pendingDeleteTarget.type === 'single') {
+        const idToDelete = pendingDeleteTarget.sessionId;
+        await deleteSessionData(idToDelete);
+        showToast(`Response ${shortId(idToDelete)} deleted!`, '🗑️');
+        if (activeDrawerSessionId === idToDelete) {
+          closeDrawer();
+        }
+      } else if (pendingDeleteTarget.type === 'all') {
+        await clearAllResponses();
+        showToast('All responses deleted successfully!', '🗑️');
+        closeDrawer();
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      showToast('Delete failed: ' + err.message, '❌');
+    } finally {
+      modalConfirm.disabled = false;
+      modalConfirm.textContent = 'Yes, Delete';
+      closeConfirmModal();
+    }
+  });
+
+  // ── Search filter ──
+  searchBox.addEventListener('input', () => {
+    const q = searchBox.value.toLowerCase();
+    const filtered = allData.filter(row =>
+      (row.sessionId || '').toLowerCase().includes(q) ||
+      Object.values(row).some(v => String(v).toLowerCase().includes(q))
+    );
+    renderTable(filtered);
+  });
+
+  // ── Refresh ──
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    location.reload();
+  });
+
+  // ── Export CSV ──
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    if (allData.length === 0) { showToast('No data to export.', 'ℹ️'); return; }
+
+    const headers = [
+      'sessionId', 'status', 'startedAt', 'completedAt',
+      'lie_detector_answer', 'goodbye_final_verdict',
+      'goodbye_step_1_answer', 'goodbye_step_2_answer', 'goodbye_step_3_answer', 'goodbye_step_4_answer', 'goodbye_step_5_answer',
+      ...Array.from({length: 10}, (_, i) => [`q${i+1}_question`, `q${i+1}_answer`]).flat()
+    ];
+
+    const csvRows = [
+      headers.join(','),
+      ...allData.map(row =>
+        headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(',')
+      )
+    ];
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `mantu_responses_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV export downloaded!', '📥');
+  });
+
+  // ── Initialize & listen ──
+  listenToAllResponses((data) => {
+    allData = data;
+    renderTable(data);
+    updateStats(data);
+  });
+</script>
+
+</body>
+</html>
