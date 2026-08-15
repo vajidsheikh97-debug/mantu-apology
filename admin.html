@@ -357,9 +357,16 @@
       display: inline-block;
       white-space: nowrap;
     }
-    .status-completed { background: rgba(107, 203, 119, 0.15); color: var(--accent3); }
-    .status-partial   { background: rgba(255, 217, 61, 0.15);  color: var(--accent2); }
-    .status-visited   { background: rgba(77, 150, 255, 0.15);  color: var(--accent4); }
+    .status-completed { background: rgba(107, 203, 119, 0.18); color: var(--accent3); border: 1px solid rgba(107, 203, 119, 0.35); }
+    .status-live      { background: rgba(52, 211, 153, 0.22);  color: #34d399; border: 1px solid rgba(52, 211, 153, 0.5); animation: pulseLive 2s infinite; font-weight: 700; }
+    .status-left      { background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.35); }
+    .status-visited   { background: rgba(167, 139, 250, 0.15); color: var(--purple-dark); border: 1px solid rgba(167, 139, 250, 0.35); }
+    .status-partial   { background: rgba(255, 217, 61, 0.15);  color: var(--accent2); border: 1px solid rgba(255, 217, 61, 0.35); }
+
+    @keyframes pulseLive {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.7; transform: scale(1.02); }
+    }
 
     .verdict-badge {
       font-size: 0.72rem;
@@ -907,6 +914,13 @@
       renderTable(data);
       updateStats(data);
     });
+
+    // Auto-update live badges every 30 seconds
+    setInterval(() => {
+      if (allData && allData.length > 0) {
+        renderTable(allData);
+      }
+    }, 30000);
   }
 
   // Hook for standalone unlock script
@@ -945,11 +959,28 @@
     }
 
     tbody.innerHTML = data.map((row, i) => {
-      let badge = `<span class="status-badge status-partial">⋯ In Progress</span>`;
-      if (row.status === 'completed') {
+      // Smart dynamic status calculation
+      let badge = '';
+      const lastPgRaw = row.last_page_visited || '';
+      const lastPgName = lastPgRaw ? lastPgRaw.replace('screen-', '').replace(/-/g, ' ') : '';
+      
+      const timeField = row.lastUpdated || row.completedAt || row.startedAt;
+      let diffMinutes = 999;
+      if (timeField) {
+        try {
+          const t = new Date(timeField).getTime();
+          if (!isNaN(t)) diffMinutes = (Date.now() - t) / (1000 * 60);
+        } catch(e) {}
+      }
+
+      if (row.status === 'completed' || row.final_action_clicked || lastPgRaw === 'screen-finale') {
         badge = `<span class="status-badge status-completed">✓ Completed</span>`;
-      } else if (row.status === 'opened' || (row.last_page_visited === 'screen-landing' && !row.q1_answer && !row.lie_detector_answer && !row.game_heart)) {
-        badge = `<span class="status-badge status-visited">👀 Landed / Opened</span>`;
+      } else if (diffMinutes <= 2.5) {
+        badge = `<span class="status-badge status-live">🟢 Live Now</span>`;
+      } else if (lastPgRaw === 'screen-landing' && !row.q1_answer && !row.lie_detector_answer && !row.game_heart) {
+        badge = `<span class="status-badge status-visited">👀 Landed & Left</span>`;
+      } else {
+        badge = `<span class="status-badge status-left">⏸️ Left (${lastPgName || 'mid-way'})</span>`;
       }
 
       let verdictBadge = `<span class="verdict-badge verdict-pending">Not reached</span>`;

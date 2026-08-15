@@ -1001,6 +1001,15 @@ function initApp() {
       else if (!document.getElementById('catModal').classList.contains('hidden')) closeCatModal();
     }
   });
+
+  /* ─ Tab Close / Hide Tracking ─ */
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      saveSessionData(SESSION_ID, {
+        tab_closed_or_hidden_at: new Date().toISOString()
+      }).catch(() => {});
+    }
+  });
 }
 
 // Immediate boot runner
