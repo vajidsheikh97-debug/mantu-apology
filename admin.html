@@ -359,6 +359,7 @@
     }
     .status-completed { background: rgba(107, 203, 119, 0.15); color: var(--accent3); }
     .status-partial   { background: rgba(255, 217, 61, 0.15);  color: var(--accent2); }
+    .status-visited   { background: rgba(77, 150, 255, 0.15);  color: var(--accent4); }
 
     .verdict-badge {
       font-size: 0.72rem;
@@ -943,10 +944,12 @@
     }
 
     tbody.innerHTML = data.map((row, i) => {
-      const status = row.status === 'completed' ? 'completed' : 'partial';
-      const badge  = status === 'completed'
-        ? `<span class="status-badge status-completed">✓ Completed</span>`
-        : `<span class="status-badge status-partial">⋯ Partial</span>`;
+      let badge = `<span class="status-badge status-partial">⋯ In Progress</span>`;
+      if (row.status === 'completed') {
+        badge = `<span class="status-badge status-completed">✓ Completed</span>`;
+      } else if (row.status === 'opened' || (row.last_page_visited === 'screen-landing' && !row.q1_answer && !row.lie_detector_answer && !row.game_heart)) {
+        badge = `<span class="status-badge status-visited">👀 Landed / Opened</span>`;
+      }
 
       let verdictBadge = `<span class="verdict-badge verdict-pending">Not reached</span>`;
       if (row.goodbye_final_verdict) {

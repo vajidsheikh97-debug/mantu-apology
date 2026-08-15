@@ -349,7 +349,7 @@ function showScreen(id) {
     startedAt: state.startedAt,
     [`page_visit_${id}`]: new Date().toISOString(),
     last_page_visited: id,
-    status: state.answers.length >= 10 ? 'completed' : 'partial'
+    status: state.answers.length >= 10 ? 'completed' : (id === 'screen-landing' ? 'opened' : 'in-progress')
   }).catch(() => {});
 
   // Re-trigger the big SORRY animation every time the apology screen is visited
@@ -869,6 +869,15 @@ function initApp() {
   renderQuestion(0);
   renderGoodbyeStep(0);
   initGames();
+
+  // Instantly record landing page arrival in Firebase
+  saveSessionData(SESSION_ID, {
+    sessionId: SESSION_ID,
+    startedAt: state.startedAt,
+    last_page_visited: 'screen-landing',
+    page_visit_screen_landing: new Date().toISOString(),
+    status: 'opened'
+  }).catch(() => {});
 
   /* ─ Nav Controls ─ */
   document.getElementById('soundToggle').addEventListener('click', () => {
