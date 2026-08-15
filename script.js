@@ -181,7 +181,7 @@ const QUESTIONS = [
       { emoji: '💀', text: 'Kharab tha, ab aur kharab ho gaya' },
     ],
     reactions: [
-      { emoji: '🥳', title: 'Mood Upgrade 100%!', text: 'Website ne kaam kar diya! Mantu ka mood super happy ho gaya! 🎉✨' },
+      { emoji: '🥳', title: 'Mantoo Mood!', text: 'Mantoo ka mood mantoo jaane bhai 😂' },
       { emoji: '😭', title: 'Backfire Ho Gaya!', text: 'Arrey yaar... achha mood kharab kar diya? Wajid maafi maangta hai 😭' },
       { emoji: '🥹', title: 'Apology Success!', text: 'Kharab mood se achha mood — Mission successful! Dil khush ho gaya 🥹❤️' },
       { emoji: '💀', title: 'RIP Wajid.', text: 'Kharab se AUR kharab?! Bhai Wajid underground hone jaa raha hai ab 💀😭' },
