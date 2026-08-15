@@ -965,17 +965,20 @@
       const lastPgName = lastPgRaw ? lastPgRaw.replace('screen-', '').replace(/-/g, ' ') : '';
       
       const timeField = row.lastUpdated || row.completedAt || row.startedAt;
-      let diffMinutes = 999;
+      let diffSeconds = 9999;
       if (timeField) {
         try {
           const t = new Date(timeField).getTime();
-          if (!isNaN(t)) diffMinutes = (Date.now() - t) / (1000 * 60);
+          if (!isNaN(t)) diffSeconds = (Date.now() - t) / 1000;
         } catch(e) {}
       }
 
+      // Check if session was closed/unloaded or tab hidden
+      const isExplicitlyClosed = row.is_active === false || row.session_closed === true || Boolean(row.tab_closed_or_hidden_at && !row.tab_active_at);
+
       if (row.status === 'completed' || row.final_action_clicked || lastPgRaw === 'screen-finale') {
         badge = `<span class="status-badge status-completed">✓ Completed</span>`;
-      } else if (diffMinutes <= 2.5) {
+      } else if (!isExplicitlyClosed && diffSeconds <= 40) {
         badge = `<span class="status-badge status-live">🟢 Live Now</span>`;
       } else if (lastPgRaw === 'screen-landing' && !row.q1_answer && !row.lie_detector_answer && !row.game_heart) {
         badge = `<span class="status-badge status-visited">👀 Landed & Left</span>`;

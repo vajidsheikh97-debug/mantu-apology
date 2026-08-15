@@ -1002,14 +1002,33 @@ function initApp() {
     }
   });
 
-  /* ─ Tab Close / Hide Tracking ─ */
+  /* ─ Instant Tab Close / Hide Tracking ─ */
+  const handleTabClose = () => {
+    saveSessionData(SESSION_ID, {
+      is_active: false,
+      session_closed: true,
+      tab_closed_or_hidden_at: new Date().toISOString()
+    }).catch(() => {});
+  };
+
+  const handleTabActive = () => {
+    saveSessionData(SESSION_ID, {
+      is_active: true,
+      session_closed: false,
+      tab_active_at: new Date().toISOString()
+    }).catch(() => {});
+  };
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      saveSessionData(SESSION_ID, {
-        tab_closed_or_hidden_at: new Date().toISOString()
-      }).catch(() => {});
+      handleTabClose();
+    } else {
+      handleTabActive();
     }
   });
+
+  window.addEventListener('pagehide', handleTabClose);
+  window.addEventListener('beforeunload', handleTabClose);
 }
 
 // Immediate boot runner
