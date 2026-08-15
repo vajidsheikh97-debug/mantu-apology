@@ -60,7 +60,7 @@ const QUESTIONS = [
   },
   {
     id: 'q2',
-    text: 'Wajid ko apology ke liye kya punishment milni chahiye?',
+    text: 'Merko apology ke liye kya punishment milni chahiye?',
     options: [
       { emoji: '🍫', text: 'Chocolate khilao' },
       { emoji: '☕', text: 'Chai pilao' },
