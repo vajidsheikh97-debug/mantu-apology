@@ -808,20 +808,20 @@ function initGames() {
     mantu.style.transform = 'scale(1.3) translateX(-20px)';
     setTimeout(() => { mantu.style.transform = ''; }, 500);
     friendshipButtons.classList.add('hidden');
-    friendResult.textContent = '🥳🥳🥳 THANKOOOOOO MNTTUUUUUU!! Wapas aa gayi!! Bahut khushi hui!! 🎉💕';
+    friendResult.textContent = '🥳🥳🥳 "thik h thik h Aate h, bs kuch din ruko" — THANKOOOOOO MNTTUUUUUU!! Intezaar rahega madam!! 🎉💕';
     friendResult.classList.remove('hidden');
-    saveSessionData(SESSION_ID, { game_friendship: 'Wapas Aayi ❤️🤝' }).catch(() => {});
+    saveSessionData(SESSION_ID, { game_friendship: 'thik h thik h Aate h, bs kuch din ruko ❤️🤝' }).catch(() => {});
   });
 
   document.getElementById('goAwayBtn').addEventListener('click', () => {
-    playBoing();
+    playAudioFile('assets/music/cry.mp3');
     const mantu = document.getElementById('mantuChar');
     mantu.style.transform = 'scale(0.8) translateX(30px)';
     setTimeout(() => { mantu.style.transform = ''; }, 500);
     friendshipButtons.classList.add('hidden');
-    friendResult.textContent = '😭 Koi ni... Door gayi Mantu... Wajid rota rahega kone mein 😭 (jk please wapas aao)';
+    friendResult.textContent = '😭 "Nahi, ham jaa rahe..." — Koi ni... Wajid kone me jaakar ro lega thoda sa 😭💔';
     friendResult.classList.remove('hidden');
-    saveSessionData(SESSION_ID, { game_friendship: 'Door Gayi 🚪😭' }).catch(() => {});
+    saveSessionData(SESSION_ID, { game_friendship: 'Nahi, ham jaa rahe 🚪😭' }).catch(() => {});
   });
 
   /* ─── Game 3: Slider ─── */
