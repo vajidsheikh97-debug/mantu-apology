@@ -736,11 +736,13 @@
           <th>#</th>
           <th>Session ID</th>
           <th>Status</th>
-          <th>Chala Jau Verdict 🚪</th>
+          <th>Last Page 🗺️</th>
+          <th>Chala Jau 🚪</th>
           <th>Lie Detector</th>
+          <th>💔 Dil Game</th>
+          <th>🤝 Dosti</th>
+          <th>📊 Friendship%</th>
           <th>Started At</th>
-          <th>Q1 Answer</th>
-          <th>Q2 Answer</th>
           <th style="text-align:center;">Actions</th>
         </tr>
       </thead>
@@ -955,19 +957,25 @@
         }
       }
 
-      const lie = row.lie_detector_answer || '—';
-      const q1  = row['q1_answer'] || '—';
-      const q2  = row['q2_answer'] || '—';
+      const lie    = row.lie_detector_answer || '—';
+      const lastPg = row.last_page_visited
+        ? row.last_page_visited.replace('screen-', '').replace(/-/g, ' ')
+        : '—';
+      const dilGame   = row.game_heart || '—';
+      const dosti     = row.game_friendship || '—';
+      const friendPct = row.game_friendship_percent || '—';
 
       return `<tr data-idx="${i}">
         <td>${i + 1}</td>
         <td><span class="session-id" title="${row.sessionId || ''}">${shortId(row.sessionId)}</span></td>
         <td>${badge}</td>
+        <td style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:capitalize;">${lastPg}</td>
         <td>${verdictBadge}</td>
         <td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${lie}</td>
+        <td style="max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dilGame}</td>
+        <td style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dosti}</td>
+        <td style="text-align:center; font-weight:700;">${friendPct}</td>
         <td class="time-cell">${formatTime(row.startedAt)}</td>
-        <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${q1}</td>
-        <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${q2}</td>
         <td style="text-align:center; white-space:nowrap;" onclick="event.stopPropagation()">
           <button class="btn-row-action" title="View details" onclick="window.viewRowDetail(${i})">👁️ View</button>
           <button class="btn-row-action btn-row-delete" title="Delete from Firebase" onclick="window.confirmDeleteSingle('${row.sessionId || row.id}')">🗑️</button>
@@ -1086,6 +1094,27 @@
           ${qaCards.join('')}
         </div>
       `;
+    }
+
+    // Games section
+    if (row.game_heart || row.game_friendship || row.game_friendship_percent) {
+      html += `<div class="drawer-section-heading">🎮 Gaming Zone Results</div>
+        <div class="answers-grid">
+          ${row.game_heart ? `<div class="answer-card"><div class="answer-card-q">💔 Dil Game</div><div class="answer-card-answer">${row.game_heart}</div></div>` : ''}
+          ${row.game_friendship ? `<div class="answer-card"><div class="answer-card-q">🤝 Dosti Game</div><div class="answer-card-answer">${row.game_friendship}</div></div>` : ''}
+          ${row.game_friendship_percent ? `<div class="answer-card"><div class="answer-card-q">📊 Friendship %</div><div class="answer-card-answer" style="font-size:1.4rem; font-weight:800; color:var(--purple-dark)">${row.game_friendship_percent}</div></div>` : ''}
+          ${row.game_slider_verdict ? `<div class="answer-card"><div class="answer-card-q">🎯 Slider Verdict</div><div class="answer-card-answer">${row.game_slider_verdict}</div></div>` : ''}
+        </div>`;
+    }
+
+    // Page journey
+    const pageFields = Object.keys(row).filter(k => k.startsWith('page_visit_'));
+    if (pageFields.length > 0) {
+      const pageItems = pageFields.map(k => {
+        const pageName = k.replace('page_visit_screen-','').replace('page_visit_','').replace(/-/g,' ');
+        return `<div class="answer-card"><div class="answer-card-q" style="text-transform:capitalize;">🗺️ ${pageName}</div><div class="answer-card-answer" style="font-size:0.75rem;">${formatTime(row[k])}</div></div>`;
+      }).join('');
+      html += `<div class="drawer-section-heading">🗺️ Page Journey (Pages Visited)</div><div class="answers-grid">${pageItems}</div>`;
     }
 
     if (!html) {

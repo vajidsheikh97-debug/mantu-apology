@@ -20,7 +20,7 @@
 
   <!-- Top Navigation -->
   <nav class="top-nav" role="navigation" aria-label="Website Controls">
-    <div class="nav-brand">🐱 Maafi Inc.</div>
+    <div class="nav-brand">🐱 MantooMaafi.com</div>
     <div class="nav-controls">
       <button class="btn-icon" id="soundToggle" title="Sound toggle" aria-label="Toggle sound effects">
         <span id="soundIcon">🔊</span>
@@ -79,7 +79,7 @@
 
         <!-- Genuine Part -->
         <div class="apology-block apology-genuine">
-          <div class="genuine-label">Okay, jokes apart. 🥺</div>
+          <div class="genuine-label">jokes a apart, hamare taraf se ye chhota sa sorry 🥺</div>
 
           <!-- Big animated SORRY -->
           <div class="big-sorry-wrapper" id="bigSorryWrapper" aria-label="A big sorry, growing in size">
@@ -207,7 +207,89 @@
     </section>
 
     <!-- ===========================
-         SECTION 6: MOOD FRESH
+         SECTION 6: GAMING ZONE
+    ============================ -->
+    <section class="screen" id="screen-games" aria-label="Fun games section">
+      <div class="card card-games animate-in">
+        <div class="games-header">
+          <div class="emoji-medium">🎮</div>
+          <div class="games-badge">GAMING ZONE</div>
+          <h2>Seedha Game pe aate hain! 😂</h2>
+          <p>Teeno games khelo, phir aage chalte hain</p>
+        </div>
+
+        <!-- ── Game 1: Dil ── -->
+        <div class="game-block" id="game1Block">
+          <div class="game-title">❤️ Game 1: Ye hamara Dil hai</div>
+          <p class="game-desc">Hamari harkat se ye toot gaya h 💔 — Tum decide karo kya karna hai:</p>
+          <div class="heart-display" id="heartDisplay">
+            <span class="heart-emoji" id="heartEmoji">💔</span>
+          </div>
+          <div class="game-result-text hidden" id="heartResult"></div>
+          <div class="game-buttons" id="heartButtons">
+            <button class="btn game-btn-bad" id="heartBreakBtn">🔨 Tod Do</button>
+            <button class="btn game-btn-good" id="heartFixBtn">🩹 Jod Do</button>
+          </div>
+        </div>
+
+        <div class="game-divider">· · ·</div>
+
+        <!-- ── Game 2: Friendship Path ── -->
+        <div class="game-block" id="game2Block">
+          <div class="game-title">🛤️ Game 2: Dosti ka Raasta</div>
+          <p class="game-desc">Mantu ko khich ke decide karo — Wajid ke paas aao ya door jao?</p>
+          <div class="friendship-arena" id="friendshipArena">
+            <div class="friend-wajid" id="friendWajid">
+              <div class="friend-char">👦</div>
+              <div class="friend-label">Wajid<br/><small>"Mntu friendship?? 🥺"</small></div>
+            </div>
+            <div class="friend-path">
+              <div class="path-line"></div>
+              <div class="friend-mantu" id="friendMantu">
+                <div class="friend-char draggable-char" id="mantuChar">👧</div>
+                <div class="friend-label">Mantu</div>
+              </div>
+            </div>
+            <div class="friend-exit" id="friendExit">
+              <div class="exit-arrow">→ 🚪</div>
+              <div class="friend-label">Door Jaana</div>
+            </div>
+          </div>
+          <div class="friendship-buttons" id="friendshipButtons">
+            <button class="btn game-btn-bad" id="goAwayBtn">🚪 Door Jao</button>
+            <button class="btn game-btn-good" id="comeBackBtn">🤝 Wapas Aao</button>
+          </div>
+          <div class="game-result-text hidden" id="friendResult"></div>
+        </div>
+
+        <div class="game-divider">· · ·</div>
+
+        <!-- ── Game 3: Friendship % Slider ── -->
+        <div class="game-block" id="game3Block">
+          <div class="game-title">📊 Game 3: Friendship Meter!</div>
+          <p class="game-desc">Me masoom sa bacha kitne percent friendship k laayak hai??</p>
+          <div class="slider-emoji-display" id="sliderEmoji">😐</div>
+          <div class="slider-pct-label" id="sliderPctLabel">1%</div>
+          <div class="slider-wrapper">
+            <input type="range" min="1" max="100" value="1" class="friendship-slider" id="friendshipSlider" />
+            <div class="slider-labels">
+              <span>1%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="sliderSubmitBtn">Submit Verdict 🎯</button>
+          <div class="game-result-text hidden" id="sliderResult"></div>
+        </div>
+
+        <button class="btn btn-primary" id="gamesNextBtn" style="margin-top:2rem" aria-label="Go to video section">
+          Aage Khelte Hain 🎬 →
+        </button>
+      </div>
+    </section>
+
+    <!-- ===========================
+         SECTION 7: MOOD FRESH (VIDEOS)
     ============================ -->
     <section class="screen" id="screen-moodfresh" aria-label="Mood fresh bonus round">
       <div class="card card-moodfresh animate-in">
@@ -215,7 +297,7 @@
           <div class="emoji-medium">🎁</div>
           <div class="bonus-badge">BONUS ROUND</div>
           <h2>Ab apology-vopology chhodo.</h2>
-          <p>Mood thoda fresh karte hain 😂</p>
+          <p>ye do video aap k liye jiii! 🎬❤️</p>
         </div>
 
         <div class="mood-videos-grid">

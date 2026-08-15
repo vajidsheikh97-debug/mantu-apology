@@ -17,11 +17,14 @@ const CONFIG = {
 };
 
 /* ────────────────────────────────────────────────
-   ▌ SESSION ID — unique per visitor
+   ▌ SESSION ID — unique per visitor, regenerated on replay
 ──────────────────────────────────────────────── */
-const SESSION_ID = (typeof crypto !== 'undefined' && crypto.randomUUID)
-  ? crypto.randomUUID()
-  : `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+function generateSessionId() {
+  return (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+let SESSION_ID = generateSessionId();
 
 /* ────────────────────────────────────────────────
    ▌ STATE
@@ -280,14 +283,34 @@ function playClick() {
   playTone({ type: 'square', startFreq: 440, endFreq: 440, duration: 0.06, volume: 0.2 });
 }
 
+/* ────────────────────────────────────────────────
+   ◌ AUDIO MANAGER — track current bg audio
+────────────────────────────────────────────────── */
+let _currentBgAudio = null;
+
 function playAudioFile(src) {
   if (!state.soundEnabled) return;
   try {
+    // Stop any playing background audio first
+    if (_currentBgAudio) {
+      _currentBgAudio.pause();
+      _currentBgAudio.currentTime = 0;
+      _currentBgAudio = null;
+    }
     const audio = new Audio(src);
     audio.volume = 1.0;
     audio.play().catch(e => console.log('Audio playback info:', e));
+    _currentBgAudio = audio;
   } catch (err) {
     console.log('Audio file error:', err);
+  }
+}
+
+function stopAllAudio() {
+  if (_currentBgAudio) {
+    _currentBgAudio.pause();
+    _currentBgAudio.currentTime = 0;
+    _currentBgAudio = null;
   }
 }
 
@@ -319,6 +342,15 @@ function showScreen(id) {
     target.classList.add('active');
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  // Track every page visit in Firebase
+  saveSessionData(SESSION_ID, {
+    sessionId: SESSION_ID,
+    startedAt: state.startedAt,
+    [`page_visit_${id}`]: new Date().toISOString(),
+    last_page_visited: id,
+    status: state.answers.length >= 10 ? 'completed' : 'partial'
+  }).catch(() => {});
 
   // Re-trigger the big SORRY animation every time the apology screen is visited
   if (id === 'screen-apology') {
@@ -460,9 +492,10 @@ function closeCatModal() {
    ▌ MOOD FRESH
 ──────────────────────────────────────────────── */
 function showMoodFresh() {
-  showScreen('screen-moodfresh');
+  // First go to games screen, then moodfresh after
+  showScreen('screen-games');
   playSuccess();
-  // ── Save completed session to Firebase ──
+  // Save completed session to Firebase
   saveCompletedSession();
 }
 
@@ -653,13 +686,19 @@ function runLieDetector() {
    ▌ RESET / RESTART
 ──────────────────────────────────────────────── */
 function resetSite() {
+  // Generate FRESH session for new attempt
+  SESSION_ID = generateSessionId();
+
   state = {
     soundEnabled:    state.soundEnabled,
     currentQuestion: 0,
     answers:         [],
     goodbyeStep:     0,
     modalStage:      null,
+    startedAt:       new Date().toISOString(),
   };
+
+  stopAllAudio();
 
   // Reset scanner
   document.getElementById('scannerButtons').classList.remove('hidden');
@@ -667,6 +706,10 @@ function resetSite() {
   document.getElementById('scannerResult').classList.add('hidden');
   document.getElementById('scanBar').style.width = '0%';
   document.getElementById('scanPercentage').textContent = '0%';
+
+  // Reset lie detector button
+  const lieNoBtn = document.getElementById('lieNoBtn');
+  if (lieNoBtn) lieNoBtn.textContent = '😭 NO';
 
   // Close modals
   document.getElementById('answerModal').classList.add('hidden');
@@ -677,8 +720,145 @@ function resetSite() {
   document.getElementById('progressFill').style.width = '10%';
   document.getElementById('progressText').textContent = 'Question 1 / 10';
 
+  // Reset games
+  resetGames();
+
+  renderQuestion(0);
+  renderGoodbyeStep(0);
+
   showScreen('screen-landing');
   playClick();
+}
+
+/* ────────────────────────────────────────────────
+   ▌ GAMING ZONE
+──────────────────────────────────────────────── */
+function resetGames() {
+  // Heart
+  const heartEmoji = document.getElementById('heartEmoji');
+  if (heartEmoji) {
+    heartEmoji.textContent = '💔';
+    heartEmoji.className = 'heart-emoji';
+  }
+  const heartButtons = document.getElementById('heartButtons');
+  if (heartButtons) heartButtons.classList.remove('hidden');
+  const heartResult = document.getElementById('heartResult');
+  if (heartResult) { heartResult.classList.add('hidden'); heartResult.textContent = ''; }
+
+  // Friendship
+  const friendshipButtons = document.getElementById('friendshipButtons');
+  if (friendshipButtons) friendshipButtons.classList.remove('hidden');
+  const friendResult = document.getElementById('friendResult');
+  if (friendResult) { friendResult.classList.add('hidden'); friendResult.textContent = ''; }
+
+  // Slider
+  const slider = document.getElementById('friendshipSlider');
+  if (slider) slider.value = 1;
+  const sliderEmoji = document.getElementById('sliderEmoji');
+  if (sliderEmoji) sliderEmoji.textContent = '😐';
+  const sliderPctLabel = document.getElementById('sliderPctLabel');
+  if (sliderPctLabel) sliderPctLabel.textContent = '1%';
+  const sliderResult = document.getElementById('sliderResult');
+  if (sliderResult) { sliderResult.classList.add('hidden'); sliderResult.textContent = ''; }
+}
+
+function initGames() {
+  /* ─── Game 1: Heart ─── */
+  const heartEmoji   = document.getElementById('heartEmoji');
+  const heartButtons = document.getElementById('heartButtons');
+  const heartResult  = document.getElementById('heartResult');
+
+  document.getElementById('heartBreakBtn').addEventListener('click', () => {
+    playBoing();
+    heartEmoji.className = 'heart-emoji heart-breaking';
+    heartEmoji.textContent = '💔';
+    heartButtons.classList.add('hidden');
+    setTimeout(() => {
+      heartEmoji.textContent = '😭💔';
+      heartResult.textContent = '😭 Ugh noooo!! Dil toot gaya... koi ni hum sambhal lenge khud ko 😭';
+      heartResult.classList.remove('hidden');
+    }, 700);
+    saveSessionData(SESSION_ID, { game_heart: 'Tod Diya 🔨😭' }).catch(() => {});
+  });
+
+  document.getElementById('heartFixBtn').addEventListener('click', () => {
+    playSuccess();
+    heartEmoji.className = 'heart-emoji heart-healing';
+    heartEmoji.textContent = '❤️';
+    heartButtons.classList.add('hidden');
+    setTimeout(() => {
+      heartEmoji.textContent = '❤️';
+      heartEmoji.classList.add('heart-pulsing');
+      heartResult.textContent = '🥳 Yayyyyyyy!! Dil jud gaya!! Mantu ne jod diya!! Shukriyaaa 🩹❤️';
+      heartResult.classList.remove('hidden');
+    }, 800);
+    saveSessionData(SESSION_ID, { game_heart: 'Jod Diya 🩹❤️' }).catch(() => {});
+  });
+
+  /* ─── Game 2: Friendship ─── */
+  const friendResult      = document.getElementById('friendResult');
+  const friendshipButtons = document.getElementById('friendshipButtons');
+
+  document.getElementById('comeBackBtn').addEventListener('click', () => {
+    playSuccess();
+    const mantu = document.getElementById('mantuChar');
+    mantu.style.transform = 'scale(1.3) translateX(-20px)';
+    setTimeout(() => { mantu.style.transform = ''; }, 500);
+    friendshipButtons.classList.add('hidden');
+    friendResult.textContent = '🥳🥳🥳 THANKOOOOOO MNTTUUUUUU!! Wapas aa gayi!! Bahut khushi hui!! 🎉💕';
+    friendResult.classList.remove('hidden');
+    saveSessionData(SESSION_ID, { game_friendship: 'Wapas Aayi ❤️🤝' }).catch(() => {});
+  });
+
+  document.getElementById('goAwayBtn').addEventListener('click', () => {
+    playBoing();
+    const mantu = document.getElementById('mantuChar');
+    mantu.style.transform = 'scale(0.8) translateX(30px)';
+    setTimeout(() => { mantu.style.transform = ''; }, 500);
+    friendshipButtons.classList.add('hidden');
+    friendResult.textContent = '😭 Koi ni... Door gayi Mantu... Wajid rota rahega kone mein 😭 (jk please wapas aao)';
+    friendResult.classList.remove('hidden');
+    saveSessionData(SESSION_ID, { game_friendship: 'Door Gayi 🚪😭' }).catch(() => {});
+  });
+
+  /* ─── Game 3: Slider ─── */
+  const slider       = document.getElementById('friendshipSlider');
+  const sliderEmoji  = document.getElementById('sliderEmoji');
+  const sliderPctEl  = document.getElementById('sliderPctLabel');
+  const sliderResult = document.getElementById('sliderResult');
+
+  function getSliderEmoji(val) {
+    if (val <= 10)  return '😑';
+    if (val <= 25)  return '😐';
+    if (val <= 40)  return '🙂';
+    if (val <= 55)  return '😊';
+    if (val <= 70)  return '😄';
+    if (val <= 85)  return '😁';
+    if (val <= 95)  return '🤩';
+    return '🥳';
+  }
+
+  slider.addEventListener('input', () => {
+    const v = parseInt(slider.value);
+    sliderPctEl.textContent = v + '%';
+    sliderEmoji.textContent = getSliderEmoji(v);
+    sliderEmoji.style.transform = 'scale(1.15)';
+    setTimeout(() => { sliderEmoji.style.transform = ''; }, 200);
+  });
+
+  document.getElementById('sliderSubmitBtn').addEventListener('click', () => {
+    const v = parseInt(slider.value);
+    playSuccess();
+    let msg;
+    if (v <= 25)  msg = `Sirf ${v}%... mujhe maaf karo Mantu 😭 I deserve it`;
+    else if (v <= 50) msg = `${v}% — Thoda toh laayak hai Wajid! Progress ho rahi hai 🙂`;
+    else if (v <= 75) msg = `${v}%!! Yayyy!! Mantu ne bahut generous verdict diya! 😄`;
+    else if (v <= 90) msg = `${v}%!! Omg Mantu besti confirmed!! 😁🎉`;
+    else              msg = `${v}%!! FULL MARKS!! Mantu ne maaf kar diya!! 🥳🎊💕`;
+    sliderResult.textContent = msg;
+    sliderResult.classList.remove('hidden');
+    saveSessionData(SESSION_ID, { game_friendship_percent: v + '%', game_slider_verdict: msg }).catch(() => {});
+  });
 }
 
 /* ────────────────────────────────────────────────
@@ -688,6 +868,7 @@ function initApp() {
   spawnParticles();
   renderQuestion(0);
   renderGoodbyeStep(0);
+  initGames();
 
   /* ─ Nav Controls ─ */
   document.getElementById('soundToggle').addEventListener('click', () => {
@@ -741,8 +922,15 @@ function initApp() {
     showScreen('screen-questions');
   });
 
+  // Games screen (goes between questions and moodfresh)
+  document.getElementById('gamesNextBtn').addEventListener('click', () => {
+    playClick();
+    showScreen('screen-moodfresh');
+  });
+
   document.getElementById('moodfreshBtn').addEventListener('click', () => {
     playClick();
+    stopAllAudio(); // Stop chlo.mp3 or any playing audio
     state.goodbyeStep = 0;
     renderGoodbyeStep(0);
     showScreen('screen-goodbye');
