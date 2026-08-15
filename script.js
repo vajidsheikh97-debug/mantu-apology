@@ -819,7 +819,7 @@ function initGames() {
     mantu.style.transform = 'scale(0.8) translateX(30px)';
     setTimeout(() => { mantu.style.transform = ''; }, 500);
     friendshipButtons.classList.add('hidden');
-    friendResult.textContent = '😭 "Nahi, ham jaa rahe..." — Koi ni... Wajid kone me jaakar ro lega thoda sa 😭💔';
+    friendResult.textContent = 'Koi ni...😭💔';
     friendResult.classList.remove('hidden');
     saveSessionData(SESSION_ID, { game_friendship: 'Nahi, ham jaa rahe 🚪😭' }).catch(() => {});
   });
