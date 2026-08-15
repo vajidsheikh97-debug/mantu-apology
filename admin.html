@@ -743,6 +743,7 @@
           <th>💔 Dil Game</th>
           <th>🤝 Dosti</th>
           <th>📊 Friendship%</th>
+          <th>Final Action 🏁</th>
           <th>Started At</th>
           <th style="text-align:center;">Actions</th>
         </tr>
@@ -967,6 +968,7 @@
       const dilGame   = row.game_heart || '—';
       const dosti     = row.game_friendship || '—';
       const friendPct = row.game_friendship_percent || '—';
+      const finalAct  = row.final_action_clicked || '—';
 
       return `<tr data-idx="${i}">
         <td>${i + 1}</td>
@@ -978,6 +980,7 @@
         <td style="max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dilGame}</td>
         <td style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dosti}</td>
         <td style="text-align:center; font-weight:700;">${friendPct}</td>
+        <td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.75rem;">${finalAct}</td>
         <td class="time-cell">${formatTime(row.startedAt)}</td>
         <td style="text-align:center; white-space:nowrap;" onclick="event.stopPropagation()">
           <button class="btn-row-action" title="View details" onclick="window.viewRowDetail(${i})">👁️ View</button>
@@ -1122,6 +1125,19 @@
         return `<div class="answer-card"><div class="answer-card-q" style="text-transform:capitalize;">🗺️ ${pageName}</div><div class="answer-card-answer" style="font-size:0.75rem;">${formatTime(row[k])}</div></div>`;
       }).join('');
       html += `<div class="drawer-section-heading">🗺️ Page Journey (Pages Visited)</div><div class="answers-grid">${pageItems}</div>`;
+    }
+
+    // Final screen action
+    if (row.final_action_clicked) {
+      html += `<div class="drawer-section-heading">🏁 Final Screen Action</div>
+        <div class="answers-grid">
+          <div class="answer-card">
+            <div class="answer-card-q">Action Selected</div>
+            <div class="answer-card-answer" style="font-weight:700; color:var(--accent4); font-size:1rem;">${row.final_action_clicked}</div>
+            ${row.instagram_clicked_at ? `<div style="margin-top:0.35rem; font-size:0.75rem; color:var(--text-muted);">Clicked at: ${formatTime(row.instagram_clicked_at)}</div>` : ''}
+            ${row.replay_clicked_at ? `<div style="margin-top:0.35rem; font-size:0.75rem; color:var(--text-muted);">Clicked at: ${formatTime(row.replay_clicked_at)}</div>` : ''}
+          </div>
+        </div>`;
     }
 
     if (!html) {

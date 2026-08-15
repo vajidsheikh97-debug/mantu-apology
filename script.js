@@ -948,9 +948,27 @@ function initApp() {
     showScreen('screen-goodbye');
   });
 
-  document.getElementById('replayBtn').addEventListener('click', () => {
-    resetSite();
-  });
+  // Final screen button tracking
+  const instaBtn = document.getElementById('instaFollowBtn');
+  if (instaBtn) {
+    instaBtn.addEventListener('click', () => {
+      saveSessionData(SESSION_ID, {
+        final_action_clicked: '📷 Follow on Instagram (@vajid.sheikh.1)',
+        instagram_clicked_at: new Date().toISOString()
+      }).catch(() => {});
+    });
+  }
+
+  const replayBtn = document.getElementById('replayBtn');
+  if (replayBtn) {
+    replayBtn.addEventListener('click', () => {
+      saveSessionData(SESSION_ID, {
+        final_action_clicked: '🔄 Phir se dekhna hai (Replay)',
+        replay_clicked_at: new Date().toISOString()
+      }).catch(() => {});
+      setTimeout(() => resetSite(), 150);
+    });
+  }
 
   /* ─ Modal Close Buttons ─ */
   document.getElementById('answerModalClose').addEventListener('click', closeAnswerModal);
