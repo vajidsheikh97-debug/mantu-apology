@@ -1077,22 +1077,26 @@
     }
 
     const qaCards = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 15; i++) {
       const question = row[`q${i}_question`];
       const answer   = row[`q${i}_answer`];
       if (question || answer) {
+        let extraInfo = '';
+        if (i === 7 && row.q7_trial_duration) {
+          extraInfo = `<div style="margin-top:0.3rem; font-size:0.75rem; color:var(--accent2); font-weight:600;">⏳ Trial Duration: ${row.q7_trial_duration}</div>`;
+        }
         qaCards.push(`
           <div class="answer-card">
             <div class="answer-card-q">Question ${i}</div>
             <div class="answer-card-question">${question || '—'}</div>
-            <div class="answer-card-answer">${answer || 'Not answered'}</div>
+            <div class="answer-card-answer">${answer || 'Not answered'}${extraInfo}</div>
           </div>`);
       }
     }
 
     if (qaCards.length > 0) {
       html += `
-        <div class="drawer-section-heading">📝 Main Quiz (10 Questions)</div>
+        <div class="drawer-section-heading">📝 Quiz Questions (${qaCards.length} answered)</div>
         <div class="answers-grid">
           ${qaCards.join('')}
         </div>

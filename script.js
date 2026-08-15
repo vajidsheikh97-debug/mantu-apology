@@ -92,39 +92,39 @@ const QUESTIONS = [
   },
   {
     id: 'q4',
-    text: 'Mantu ka current mood kya hai?',
+    text: 'Wajid ki sabse achhi baat kya hai?',
     options: [
-      { emoji: '😇', text: '"Theek hai, maaf kiya."' },
-      { emoji: '😐', text: '"Dekhte hain."' },
-      { emoji: '😂', text: '"Ye website kisne banayi?"' },
-      { emoji: '🚪', text: '"Bhai please ghar jao." 😭' },
+      { emoji: '💀', text: 'Samajh late aati hai, lekin aati toh hai' },
+      { emoji: '🧠', text: 'Bada hoshiyar hai… bas thoda late' },
+      { emoji: '🫠', text: 'Galti karke bhi hero feel karta hai' },
+      { emoji: '🤡', text: 'Dimaag se paidal hai shayad 😂' },
     ],
     reactions: [
-      { emoji: '🥹', title: 'Mantu ne maaf kiya!', text: 'System confirmed: Mantu mood = Forgiving. Wajid ka dil khush ho gaya. 🥹✨' },
-      { emoji: '😐', title: 'Under Review.', text: '"Dekhte hain" — translation: kuch bhi ho sakta hai. Nervous mode: ON. 😅' },
-      { emoji: '🤡', title: 'Fair Question.', text: 'Wajid ne banaya. Wajid ko bhi nahi pata kyun banaya. 😂' },
-      { emoji: '🚪', title: 'Eviction Notice.', text: 'Please exit through the main door. Thank you for visiting. 😭' },
+      { emoji: '💀', title: 'Delayed Wisdom Certified.', text: 'Wajid ki samajh slow hai but reliable hai. Like a bullock cart with GPS. 😂' },
+      { emoji: '🧠', title: 'Late Genius Confirmed.', text: 'Wajid ek delayed edition genius hai. Results aate hain, bas thodi der se. 😂' },
+      { emoji: '🦸', title: 'Hero Complex Noted.', text: 'Survey says: 100% hero feel. Reality: disputed. But confidence? Unmatched. 😂' },
+      { emoji: '🤡', title: 'Self-Aware Mode: ON.', text: 'Wajid agrees. Wajid has always agreed. This is peak self-awareness. 😂' },
     ],
   },
   {
     id: 'q5',
-    text: 'Agar Mantu Wajid ki teacher hoti to?',
+    text: 'Mantu, aap ham se kya expect kia karti thi?',
     options: [
-      { emoji: '📚', text: '"Beta, baitho. Samjhati hoon."' },
-      { emoji: '📝', text: '"Kal parents ko lekar aana."' },
-      { emoji: '😭', text: '"Tumse ye expectation nahi thi."' },
-      { emoji: '😂', text: '"Principal ke paas jao."' },
+      { emoji: '👩‍🏫', text: 'Beta baitho samjhati hu' },
+      { emoji: '🤔', text: 'kuch achha but pata nahi' },
+      { emoji: '😭', text: 'Tumse ye expectation nahi thi' },
+      { emoji: '🤦‍♀️', text: 'Aap jaao naa yar kyu faltu ki magaj mari' },
     ],
     reactions: [
-      { emoji: '📚', title: 'Patient Teacher Alert!', text: 'Mantu teacher ban gayi. Extra tuition class ke liye timing confirm karo. 😂' },
-      { emoji: '📝', title: 'Parent-Teacher Meet.', text: 'Wajid ke parents ka letter jaa raha hai. Extremely concerning. 😭' },
-      { emoji: '😔', title: 'Disappointed Mode.', text: '"Tumse ye expectation nahi thi" — the most devastating words ever uttered. 😭💀' },
-      { emoji: '🚶', title: 'Referred Upstairs.', text: 'Wajid ko Principal office bheja gaya. Please carry ID proof. 😭😂' },
+      { emoji: '👩‍🏫', title: 'Tuition Class Required!', text: 'Mantu ne baitha kar samjhana decide kiya. Notebook aur pen ready hai. 😂' },
+      { emoji: '✨', title: 'Expectation Mystery.', text: 'Kuch achha expect kiya tha... but result thoda unexpected nikla. 😅' },
+      { emoji: '💔', title: 'Emotional Damage.', text: '"Tumse ye expectation nahi thi" — Dil pe seedha war! 😭💀' },
+      { emoji: '🚪', title: 'Magaj Mari Cancelled.', text: 'No faltu discussion allowed. Direct exit lane reserved. 😭😂' },
     ],
   },
   {
     id: 'q6',
-    text: 'Agar Mantu "Hi" bole to Wajid kya karega?',
+    text: 'Mantu, Agar tum mujhe "Hi" bolo to mee kya karuga, kya lagta hai 😂',
     options: [
       { emoji: '😎', text: 'Normal reply' },
       { emoji: '😂', text: 'Screenshot lekar museum mein rakhega' },
@@ -141,37 +141,22 @@ const QUESTIONS = [
   {
     id: 'q7',
     text: 'Wajid ko ek chance mile?',
+    hasTrialOption: true,
     options: [
-      { emoji: '🤝', text: 'Friendship trial version' },
-      { emoji: '🤔', text: 'Under observation' },
-      { emoji: '😂', text: '7-day free trial' },
-      { emoji: '🚫', text: 'Subscription permanently cancelled 😭' },
+      { emoji: '😇', text: 'Ha (Bada dil karke)' },
+      { emoji: '😂', text: 'Ha (Majboori mein)' },
+      { emoji: '⏳', text: 'Friendship trial version' },
+      { emoji: '🤡', text: 'Upar vaale 3no option galat hai na be.' },
     ],
     reactions: [
-      { emoji: '🤝', title: 'Trial Version Activated!', text: 'Friendship v1.0 trial start ho gaya. Bugs report karna. 😂' },
-      { emoji: '🔭', title: 'Monitoring Mode.', text: 'Wajid is now under 24/7 behavioral observation. CCTV: ON. 😐' },
-      { emoji: '⏳', title: '7-Day Trial Started.', text: 'T-minus 7 days. No refunds. No extension. Let\'s see. 😂' },
-      { emoji: '😭', title: 'Subscription Cancelled.', text: 'ERROR 404: Friendship not found. Wajid crying in the corner. 😭' },
+      { emoji: '🎉', title: 'Chance Granted!', text: 'Mantu ne officially ek chance de diya! Wajid ab accha bacha banega. 🥹✨' },
+      { emoji: '😂', title: 'Majboori Ka Chance.', text: 'Option hi nahi chhora system ne. Maafi accepted! 😂' },
+      { emoji: '⏳', title: 'Trial Version Activated!', text: 'Friendship trial mode started! Terms & conditions apply. 😂' },
+      { emoji: '💀', title: 'Pakdi Gayi Trick!', text: 'System rigging detect ho gayi! "Option galat hai na be" — sharp observation! 😭😂' },
     ],
   },
   {
     id: 'q8',
-    text: 'Agar Wajid ka apology ek app hota to rating?',
-    options: [
-      { emoji: '', text: '⭐⭐⭐⭐⭐ "Surprisingly decent"' },
-      { emoji: '', text: '⭐⭐⭐⭐ "Could improve"' },
-      { emoji: '', text: '⭐⭐⭐ "Needs update"' },
-      { emoji: '', text: '⭐ "Uninstall immediately" 😂' },
-    ],
-    reactions: [
-      { emoji: '🏆', title: '5 Stars Received!', text: 'Mantu ne 5 star diya. Developer (Wajid) ne immediately screenshot le liya. 😂' },
-      { emoji: '📈', title: '4 Stars — Room for Growth.', text: 'Version 2.0 mein improvements expected hain. Update pending. 🙏' },
-      { emoji: '🔧', title: 'Patch Required.', text: 'Developers are working on it. ETA: 2–3 business apologies. 😭' },
-      { emoji: '🗑️', title: 'Uninstalled.', text: 'App removed. All data cleared. Wajid is devastated. 😭😂' },
-    ],
-  },
-  {
-    id: 'q9',
     text: 'Mantu ko ye website kaisi lagi?',
     options: [
       { emoji: '😂', text: '"Bakchodi achhi thi"' },
@@ -187,25 +172,25 @@ const QUESTIONS = [
     ],
   },
   {
-    id: 'q10',
-    text: 'Wajid ki sabse achhi baat kya hai?',
+    id: 'q9',
+    text: 'Ab Aap ka mood kaisa hai?',
     options: [
-      { emoji: '💀', text: 'Samajh late aati hai, lekin aati toh hai' },
-      { emoji: '🧠', text: 'Bada hoshiyar hai… bas thoda late' },
-      { emoji: '🫠', text: 'Galti karke bhi hero feel karta hai' },
-      { emoji: '🤡', text: 'Dimaag se paidal hai shayad 😂' },
+      { emoji: '😊', text: 'Achha tha, ab Aur achha ho gaya hai' },
+      { emoji: '😒', text: 'Achha tha, ab kharab hai' },
+      { emoji: '🥰', text: 'Kharab tha lekin ab achha hai' },
+      { emoji: '💀', text: 'Kharab tha, ab aur kharab ho gaya' },
     ],
     reactions: [
-      { emoji: '💀', title: 'Delayed Wisdom Certified.', text: 'Wajid ki samajh slow hai but reliable hai. Like a bullock cart with GPS. 😂' },
-      { emoji: '🧠', title: 'Late Genius Confirmed.', text: 'Wajid ek delayed edition genius hai. Results aate hain, bas thodi der se. 😂' },
-      { emoji: '🦸', title: 'Hero Complex Noted.', text: 'Survey says: 100% hero feel. Reality: disputed. But confidence? Unmatched. 😂' },
-      { emoji: '🤡', title: 'Self-Aware Mode: ON.', text: 'Wajid agrees. Wajid has always agreed. This is peak self-awareness. 😂' },
+      { emoji: '🥳', title: 'Mood Upgrade 100%!', text: 'Website ne kaam kar diya! Mantu ka mood super happy ho gaya! 🎉✨' },
+      { emoji: '😭', title: 'Backfire Ho Gaya!', text: 'Arrey yaar... achha mood kharab kar diya? Wajid maafi maangta hai 😭' },
+      { emoji: '🥹', title: 'Apology Success!', text: 'Kharab mood se achha mood — Mission successful! Dil khush ho gaya 🥹❤️' },
+      { emoji: '💀', title: 'RIP Wajid.', text: 'Kharab se AUR kharab?! Bhai Wajid underground hone jaa raha hai ab 💀😭' },
     ],
   },
 ];
 
 /* ────────────────────────────────────────────────
-   ▌ CAT INTERMISSIONS — 10 unique cat moments
+   ▌ CAT INTERMISSIONS — unique cat moments
 ──────────────────────────────────────────────── */
 const CAT_INTERMISSIONS = [
   { cat: '', title: '', text: '' },
@@ -217,7 +202,6 @@ const CAT_INTERMISSIONS = [
   { cat: '😸🎭', title: 'Theatre Moment.', text: 'Merko maafi mil gayi?" — suspense. 😂' },
   { cat: '', title: '', text: '' },
   { cat: '😻💫', title: 'Starcat!', text: 'okok Last question hai, Aisich hai apnaa 😂' },
-  { cat: '🐱🎉', title: 'Final Celebration!', text: 'Apka Dhanyawaad jo aap last tak bane rahe 🎉😭' },
 ];
 
 /* ────────────────────────────────────────────────
@@ -381,8 +365,8 @@ function renderQuestion(index) {
 
   number.textContent  = `Q${index + 1}`;
   text.textContent    = q.text;
-  pText.textContent   = `Question ${index + 1} / 10`;
-  pFill.style.width   = `${((index + 1) / 10) * 100}%`;
+  pText.textContent   = `Question ${index + 1} / ${QUESTIONS.length}`;
+  pFill.style.width   = `${((index + 1) / QUESTIONS.length) * 100}%`;
 
   options.innerHTML = '';
   q.options.forEach((opt, i) => {
@@ -408,15 +392,34 @@ function selectAnswer(qIndex, optIndex, btnEl) {
   // Record answer
   state.answers[qIndex] = optIndex;
 
-  // Auto-save progress in real-time
   const q = QUESTIONS[qIndex];
-  saveSessionData(SESSION_ID, {
+  let answerText = `${q.options[optIndex].emoji || ''} ${q.options[optIndex].text}`.trim();
+  let trialDuration = null;
+
+  // If question is Q7 and option selected is "Friendship trial version" (optIndex === 2)
+  if (q.hasTrialOption && optIndex === 2) {
+    const userInput = prompt("Friendship trial version kitne din ka madam? 😂 (e.g. 7 din, 30 din, 6 mahine, lifetime):");
+    if (userInput && userInput.trim()) {
+      trialDuration = userInput.trim();
+      answerText += ` (Kitne din: ${trialDuration})`;
+      if (q.reactions[optIndex]) {
+        q.reactions[optIndex].text = `Mantu ne ${trialDuration} ka friendship trial version activate kiya! Full enjoy karein! 😂`;
+      }
+    }
+  }
+
+  // Auto-save progress in real-time
+  const savePayload = {
     sessionId: SESSION_ID,
     startedAt: state.startedAt,
-    status: 'partial',
+    status: 'in-progress',
     [`q${qIndex + 1}_question`]: q.text,
-    [`q${qIndex + 1}_answer`]: `${q.options[optIndex].emoji || ''} ${q.options[optIndex].text}`.trim()
-  }).catch(() => {});
+    [`q${qIndex + 1}_answer`]: answerText
+  };
+  if (trialDuration) {
+    savePayload.q7_trial_duration = trialDuration;
+  }
+  saveSessionData(SESSION_ID, savePayload).catch(() => {});
 
   // Show answer popup after short delay
   setTimeout(() => openAnswerModal(qIndex, optIndex), 300);
@@ -717,8 +720,8 @@ function resetSite() {
   document.getElementById('noBranchModal').classList.add('hidden');
 
   // Reset progress bar
-  document.getElementById('progressFill').style.width = '10%';
-  document.getElementById('progressText').textContent = 'Question 1 / 10';
+  document.getElementById('progressFill').style.width = `${(1 / QUESTIONS.length) * 100}%`;
+  document.getElementById('progressText').textContent = `Question 1 / ${QUESTIONS.length}`;
 
   // Reset games
   resetGames();
