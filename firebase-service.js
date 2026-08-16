@@ -28,7 +28,7 @@ let auth = null;
 let authInitialized = false;
 
 // Firestore SDK function references
-let getFirestore, doc, setDoc, deleteDoc, getDocs, collection, onSnapshot, query, orderBy, serverTimestamp;
+let getFirestore, doc, setDoc, getDoc, deleteDoc, getDocs, collection, onSnapshot, query, orderBy, serverTimestamp;
 
 // Auth SDK function references
 let getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged;
@@ -93,6 +93,7 @@ export async function initFirebase() {
     getFirestore = firestoreModule.getFirestore;
     doc = firestoreModule.doc;
     setDoc = firestoreModule.setDoc;
+    getDoc = firestoreModule.getDoc;
     deleteDoc = firestoreModule.deleteDoc;
     getDocs = firestoreModule.getDocs;
     collection = firestoreModule.collection;
@@ -285,9 +286,6 @@ export async function recordVisitorVisit(visitorId, device) {
     if (firestore && doc && setDoc) {
       const docRef = doc(firestore, 'visitors', visitorId);
 
-      // We use a merge write with a sub-array field trick for visit log
-      // We read first to append visits array safely
-      const { getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
       const snap = await getDoc(docRef);
       const existing = snap.exists() ? snap.data() : null;
       const oldVisits = existing?.visits || [];
