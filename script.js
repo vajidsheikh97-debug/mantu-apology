@@ -6,7 +6,7 @@
 'use strict';
 
 // Firebase service (saves answers to Firestore + localStorage)
-import { saveSessionData } from './firebase-service.js';
+import { saveSessionData, recordVisitorVisit } from './firebase-service.js';
 
 /* ────────────────────────────────────────────────
    ▌ SITE CONFIG — edit these to customize
@@ -15,6 +15,33 @@ const CONFIG = {
   instagramHandle: 'vajid.sheikh.1',
   instagramUrl:    'https://www.instagram.com/vajid.sheikh.1',
 };
+
+/* ────────────────────────────────────────────────
+   ▌ VISITOR ID — permanent per browser (survives page reloads)
+──────────────────────────────────────────────── */
+function getOrCreateVisitorId() {
+  const KEY = 'mantu_visitor_id';
+  let vid = localStorage.getItem(KEY);
+  if (!vid) {
+    vid = 'VIS_' + Date.now().toString(36).toUpperCase() + '_' + Math.random().toString(36).slice(2, 7).toUpperCase();
+    localStorage.setItem(KEY, vid);
+  }
+  return vid;
+}
+const VISITOR_ID = getOrCreateVisitorId();
+
+/* ────────────────────────────────────────────────
+   ▌ DEVICE DETECTION
+──────────────────────────────────────────────── */
+function detectDevice() {
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/i.test(ua))   return '🍎 iPhone/iPad';
+  if (/Android/i.test(ua))             return '📱 Android';
+  if (/Macintosh/i.test(ua))           return '💻 Mac';
+  if (/Windows/i.test(ua))             return '🖥️ Windows';
+  if (/Linux/i.test(ua))               return '🐧 Linux';
+  return '❓ Unknown';
+}
 
 /* ────────────────────────────────────────────────
    ▌ SESSION ID — unique per visitor, regenerated on replay
@@ -876,11 +903,16 @@ function initApp() {
   // Instantly record landing page arrival in Firebase
   saveSessionData(SESSION_ID, {
     sessionId: SESSION_ID,
+    visitorId: VISITOR_ID,
+    device: detectDevice(),
     startedAt: state.startedAt,
     last_page_visited: 'screen-landing',
     page_visit_screen_landing: new Date().toISOString(),
     status: 'opened'
   }).catch(() => {});
+
+  // Track visitor visit count (persistent across sessions)
+  recordVisitorVisit(VISITOR_ID, detectDevice()).catch(() => {});
 
   /* ─ Nav Controls ─ */
   document.getElementById('soundToggle').addEventListener('click', () => {

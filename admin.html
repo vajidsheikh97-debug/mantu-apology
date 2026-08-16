@@ -676,6 +676,91 @@
       th, td { padding: 0.7rem 0.8rem; }
       .drawer { padding: 1.5rem 1rem; }
     }
+
+    /* ── Admin Tabs ── */
+    .admin-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+    .admin-tab {
+      background: none;
+      border: none;
+      padding: 0.65rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius) var(--radius) 0 0;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+    .admin-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .admin-tab.active {
+      color: var(--accent2);
+      border-bottom-color: var(--accent2);
+      background: rgba(96,165,250,0.07);
+    }
+
+    /* ── Visitors Grid ── */
+    .visitors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+      padding-top: 0.5rem;
+    }
+    .visitor-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.2s, transform 0.15s;
+      cursor: default;
+    }
+    .visitor-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+    .visitor-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .visitor-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .visitor-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .visitor-id   { font-size: 0.7rem; color: var(--text-muted); font-family: monospace; margin-top: 0.1rem; }
+    .visitor-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem; }
+    .visitor-meta span { display: flex; align-items: center; gap: 0.4rem; }
+    .visit-count-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: rgba(96,165,250,0.15);
+      color: var(--accent2);
+      border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      align-self: flex-start;
+    }
+    .visit-timestamps {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      max-height: 70px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
   </style>
 </head>
 <body>
@@ -711,7 +796,7 @@
 <!-- ── Main ── -->
 <main class="admin-main">
 
-  <!-- Stats -->
+<!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Total Responses</div>
@@ -726,49 +811,76 @@
       <div class="stat-value accent" id="statRoka">—</div>
     </div>
     <div class="stat-card">
+      <div class="stat-label">Unique Visitors</div>
+      <div class="stat-value accent2" id="statVisitors">—</div>
+    </div>
+    <div class="stat-card" style="grid-column: 1/-1;">
       <div class="stat-label">Last Response</div>
       <div class="stat-value accent2" id="statLast" style="font-size:0.95rem; margin-top:0.25rem;">—</div>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="section-header">
-    <div class="section-title">All User Responses</div>
-    <input class="search-box" id="searchBox" type="text" placeholder="🔍 Search session ID or answers..." />
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="admin-tab active" id="tabResponses" onclick="switchTab('responses')">📋 Responses</button>
+    <button class="admin-tab" id="tabVisitors" onclick="switchTab('visitors')">👁️ Visitors</button>
   </div>
 
-  <div class="table-wrap">
-    <table id="responsesTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Session ID</th>
-          <th>Status</th>
-          <th>Last Page 🗺️</th>
-          <th>Chala Jau 🚪</th>
-          <th>Lie Detector</th>
-          <th>💔 Dil Game</th>
-          <th>🤝 Dosti</th>
-          <th>📊 Friendship%</th>
-          <th>Final Action 🏁</th>
-          <th>Started At</th>
-          <th style="text-align:center;">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="responsesBody">
-        <tr>
-          <td colspan="9">
-            <div class="state-placeholder">
-              <div class="big-emoji">⏳</div>
-              <p>Loading responses…</p>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Responses Panel -->
+  <div id="panelResponses">
+    <!-- Table -->
+    <div class="section-header">
+      <div class="section-title">All User Responses</div>
+      <input class="search-box" id="searchBox" type="text" placeholder="🔍 Search session ID or answers..." />
+    </div>
+
+    <div class="table-wrap">
+      <table id="responsesTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Session ID</th>
+            <th>Visitor</th>
+            <th>Device</th>
+            <th>Status</th>
+            <th>Last Page 🗺️</th>
+            <th>Chala Jau 🚪</th>
+            <th>Lie Detector</th>
+            <th>💔 Dil Game</th>
+            <th>🤝 Dosti</th>
+            <th>📊 Friendship%</th>
+            <th>Final Action 🏁</th>
+            <th>Started At</th>
+            <th style="text-align:center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="responsesBody">
+          <tr>
+            <td colspan="14">
+              <div class="state-placeholder">
+                <div class="big-emoji">⏳</div>
+                <p>Loading responses…</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Visitors Panel -->
+  <div id="panelVisitors" style="display:none;">
+    <div class="section-header">
+      <div class="section-title">👁️ Unique Visitors</div>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Same browser = Same Visitor. Sorted by visit count.</span>
+    </div>
+    <div id="visitorsGrid" class="visitors-grid">
+      <div class="state-placeholder"><div class="big-emoji">⏳</div><p>Loading visitors…</p></div>
+    </div>
   </div>
 
 </main>
+
 
 <!-- ── Detail Drawer ── -->
 <div class="drawer-overlay" id="drawerOverlay">
@@ -865,12 +977,23 @@
 <script type="module">
   import {
     listenToAllResponses,
+    listenToVisitors,
     deleteSessionData,
     clearAllResponses,
     isFirebaseConfigured
   } from './firebase-service.js';
 
   let allData = [];
+  let allVisitorsData = [];
+
+  // ── Tab switching ──
+  window.switchTab = function(tab) {
+    const tabs = ['responses', 'visitors'];
+    tabs.forEach(t => {
+      document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? '' : 'none';
+      document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+  };
   let pendingDeleteTarget = null;
   let activeDrawerSessionId = null;
 
@@ -915,6 +1038,12 @@
       updateStats(data);
     });
 
+    listenToVisitors((data) => {
+      allVisitorsData = data;
+      renderVisitors(data);
+      document.getElementById('statVisitors').textContent = data.length;
+    });
+
     // Auto-update live badges every 30 seconds
     setInterval(() => {
       if (allData && allData.length > 0) {
@@ -950,7 +1079,7 @@
 
   function renderTable(data) {
     if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9">
+      tbody.innerHTML = `<tr><td colspan="14">
         <div class="state-placeholder">
           <div class="big-emoji">🐱</div>
           <p>Koi response nahi mila abhi tak.<br/>Apology website open karke test karo!</p>
@@ -1004,9 +1133,25 @@
       const friendPct = row.game_friendship_percent || '—';
       const finalAct  = row.final_action_clicked || '—';
 
+      // ── Visitor label lookup ──
+      const visitorColors = ['#f472b6','#a78bfa','#60a5fa','#34d399','#fbbf24','#fb923c','#f87171','#818cf8'];
+      let visitorLabel = '?';
+      let visitorColor = '#888';
+      if (row.visitorId) {
+        const vIdx = allVisitorsData.findIndex(v => v.visitorId === row.visitorId);
+        if (vIdx >= 0) {
+          visitorLabel = `Visitor ${String.fromCharCode(65 + vIdx)}`;
+          visitorColor = visitorColors[vIdx % visitorColors.length];
+        } else {
+          visitorLabel = shortId(row.visitorId);
+        }
+      }
+
       return `<tr data-idx="${i}">
         <td>${i + 1}</td>
         <td><span class="session-id" title="${row.sessionId || ''}">${shortId(row.sessionId)}</span></td>
+        <td><span style="font-weight:700; color:${visitorColor};">${visitorLabel}</span></td>
+        <td style="font-size:0.78rem;">${row.device || '—'}</td>
         <td>${badge}</td>
         <td style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:capitalize;">${lastPg}</td>
         <td>${verdictBadge}</td>
@@ -1030,6 +1175,48 @@
         openDrawer(data[idx]);
       });
     });
+  }
+
+  // ── Render Visitors Grid ──
+  function renderVisitors(data) {
+    const grid = document.getElementById('visitorsGrid');
+    if (!grid) return;
+    if (!data || data.length === 0) {
+      grid.innerHTML = `<div class="state-placeholder"><div class="big-emoji">👁️</div><p>Koi visitor nahi mila abhi tak.<br/>Website open karo!</p></div>`;
+      return;
+    }
+    const visitorColors = ['#f472b6','#a78bfa','#60a5fa','#34d399','#fbbf24','#fb923c','#f87171','#818cf8'];
+    const visitorBgs   = ['rgba(244,114,182,0.12)','rgba(167,139,250,0.12)','rgba(96,165,250,0.12)','rgba(52,211,153,0.12)','rgba(251,191,36,0.12)','rgba(251,113,133,0.12)','rgba(248,113,113,0.12)','rgba(129,140,248,0.12)'];
+    grid.innerHTML = data.map((v, i) => {
+      const label  = String.fromCharCode(65 + i); // A, B, C ...
+      const color  = visitorColors[i % visitorColors.length];
+      const bg     = visitorBgs[i % visitorBgs.length];
+      const lastSeen  = v.lastSeen  ? formatTime(v.lastSeen)  : '—';
+      const firstSeen = v.firstSeen ? formatTime(v.firstSeen) : '—';
+      const visits = Array.isArray(v.visits) ? v.visits.slice(0, 8) : [];
+      return `
+        <div class="visitor-card">
+          <div class="visitor-card-header">
+            <div class="visitor-avatar" style="background:${bg}; color:${color}; border:2px solid ${color};">${label}</div>
+            <div>
+              <div class="visitor-name" style="color:${color};">Visitor ${label}</div>
+              <div class="visitor-id">${v.visitorId || '—'}</div>
+            </div>
+          </div>
+          <div class="visit-count-badge">👁️ ${v.visitCount || 1} visit${(v.visitCount || 1) > 1 ? 's' : ''}</div>
+          <div class="visitor-meta">
+            <span>📱 <strong>Device:</strong> ${v.device || '—'}</span>
+            <span>🕐 <strong>First seen:</strong> ${firstSeen}</span>
+            <span>🕐 <strong>Last seen:</strong> ${lastSeen}</span>
+          </div>
+          ${visits.length > 0 ? `
+          <div style="font-size:0.72rem; color:var(--text-muted); font-weight:600; margin-top:0.3rem;">Recent Visits:</div>
+          <div class="visit-timestamps">
+            ${visits.map(ts => `<span>• ${formatTime(ts)}</span>`).join('')}
+          </div>` : ''}
+        </div>
+      `;
+    }).join('');
   }
 
   window.viewRowDetail = function(idx) {

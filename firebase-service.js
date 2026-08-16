@@ -195,4 +195,95 @@ export async function clearAllResponses() {
     throw err;
   }
 }
+// ─────────────────────────────────────────────────────────────
+// VISITOR TRACKING — persistent per browser (via VISITOR_ID)
+// Stores total visit count, last seen, device, visit timestamps
+// ─────────────────────────────────────────────────────────────
 
+export async function recordVisitorVisit(visitorId, device) {
+  const now = new Date().toISOString();
+
+  // 1. Update localStorage visitors map
+  try {
+    const localKey = 'mantu_visitors';
+    const allVisitors = JSON.parse(localStorage.getItem(localKey) || '{}');
+    const existing = allVisitors[visitorId] || { visitCount: 0, visits: [] };
+    const visitCount = (existing.visitCount || 0) + 1;
+    const visits = existing.visits || [];
+    visits.unshift(now); // newest first
+    if (visits.length > 50) visits.pop(); // cap history at 50
+
+    allVisitors[visitorId] = {
+      visitorId,
+      device,
+      visitCount,
+      firstSeen: existing.firstSeen || now,
+      lastSeen: now,
+      visits,
+    };
+    localStorage.setItem(localKey, JSON.stringify(allVisitors));
+  } catch (e) {
+    console.error('Visitor localStorage error:', e);
+  }
+
+  // 2. Push to Firestore visitors collection
+  try {
+    const firestore = await initFirebase();
+    if (firestore && doc && setDoc) {
+      const docRef = doc(firestore, 'visitors', visitorId);
+
+      // We use a merge write with a sub-array field trick for visit log
+      // We read first to append visits array safely
+      const { getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const snap = await getDoc(docRef);
+      const existing = snap.exists() ? snap.data() : null;
+      const oldVisits = existing?.visits || [];
+      const oldCount  = existing?.visitCount || 0;
+
+      const newVisits = [now, ...oldVisits].slice(0, 50);
+
+      await setDoc(docRef, {
+        visitorId,
+        device,
+        visitCount: oldCount + 1,
+        firstSeen: existing?.firstSeen || now,
+        lastSeen: now,
+        visits: newVisits,
+        updatedAt: serverTimestamp ? serverTimestamp() : new Date(),
+      }, { merge: false }); // full overwrite to keep clean
+      console.log('👁️ Visitor visit recorded:', visitorId);
+    }
+  } catch (err) {
+    console.error('Error recording visitor visit:', err);
+  }
+}
+
+// Real-time listener for Visitors (Admin Panel)
+export async function listenToVisitors(onUpdate) {
+  // 1. Load from localStorage first
+  const getLocalVisitors = () => {
+    try {
+      const all = JSON.parse(localStorage.getItem('mantu_visitors') || '{}');
+      return Object.values(all).sort((a, b) => b.visitCount - a.visitCount);
+    } catch {
+      return [];
+    }
+  };
+  onUpdate(getLocalVisitors());
+
+  // 2. Firestore real-time listener
+  try {
+    const firestore = await initFirebase();
+    if (firestore && collection && onSnapshot) {
+      const q = collection(firestore, 'visitors');
+      onSnapshot(q, (snapshot) => {
+        const data = [];
+        snapshot.forEach((d) => data.push({ id: d.id, ...d.data() }));
+        data.sort((a, b) => b.visitCount - a.visitCount);
+        onUpdate(data);
+      });
+    }
+  } catch (err) {
+    console.error('Error attaching visitors listener:', err);
+  }
+}
