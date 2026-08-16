@@ -167,31 +167,35 @@ export async function deleteSessionData(sessionId) {
   }
 }
 
-// Clear all responses
+// Clear all responses AND visitors
 export async function clearAllResponses() {
   // 1. Clear localStorage
   try {
     localStorage.removeItem('mantu_local_responses');
+    localStorage.removeItem('mantu_visitors');
   } catch (e) {
     console.error("Local storage clear error:", e);
   }
 
-  // 2. Clear Firestore
+  // 2. Clear Firestore — both collections
   try {
     const firestore = await initFirebase();
     if (firestore && collection && getDocs && deleteDoc) {
-      const q = collection(firestore, "responses");
-      const snap = await getDocs(q);
-      const deletePromises = [];
-      snap.forEach((d) => {
-        deletePromises.push(deleteDoc(d.ref));
-      });
-      await Promise.all(deletePromises);
-      console.log("🗑️ All responses cleared from Firestore.");
+      // Clear responses
+      const rSnap = await getDocs(collection(firestore, "responses"));
+      const delPromises = [];
+      rSnap.forEach((d) => delPromises.push(deleteDoc(d.ref)));
+
+      // Clear visitors
+      const vSnap = await getDocs(collection(firestore, "visitors"));
+      vSnap.forEach((d) => delPromises.push(deleteDoc(d.ref)));
+
+      await Promise.all(delPromises);
+      console.log("🗑️ All responses & visitors cleared from Firestore.");
     }
     return true;
   } catch (err) {
-    console.error("Error clearing Firestore responses:", err);
+    console.error("Error clearing Firestore:", err);
     throw err;
   }
 }

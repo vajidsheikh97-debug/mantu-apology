@@ -1133,18 +1133,16 @@
       const friendPct = row.game_friendship_percent || '—';
       const finalAct  = row.final_action_clicked || '—';
 
-      // ── Visitor label lookup ──
+      // ── Visitor display (raw VIS ID, color-coded) ──
       const visitorColors = ['#f472b6','#a78bfa','#60a5fa','#34d399','#fbbf24','#fb923c','#f87171','#818cf8'];
-      let visitorLabel = '?';
-      let visitorColor = '#888';
+      let visitorLabel = '—';
+      let visitorColor = 'var(--text-muted)';
       if (row.visitorId) {
-        const vIdx = allVisitorsData.findIndex(v => v.visitorId === row.visitorId);
-        if (vIdx >= 0) {
-          visitorLabel = `Visitor ${String.fromCharCode(65 + vIdx)}`;
-          visitorColor = visitorColors[vIdx % visitorColors.length];
-        } else {
-          visitorLabel = shortId(row.visitorId);
-        }
+        visitorLabel = row.visitorId;
+        // Give each unique VIS ID a consistent color based on its hash
+        let hash = 0;
+        for (let c of row.visitorId) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+        visitorColor = visitorColors[Math.abs(hash) % visitorColors.length];
       }
 
       return `<tr data-idx="${i}">
@@ -1188,19 +1186,24 @@
     const visitorColors = ['#f472b6','#a78bfa','#60a5fa','#34d399','#fbbf24','#fb923c','#f87171','#818cf8'];
     const visitorBgs   = ['rgba(244,114,182,0.12)','rgba(167,139,250,0.12)','rgba(96,165,250,0.12)','rgba(52,211,153,0.12)','rgba(251,191,36,0.12)','rgba(251,113,133,0.12)','rgba(248,113,113,0.12)','rgba(129,140,248,0.12)'];
     grid.innerHTML = data.map((v, i) => {
-      const label  = String.fromCharCode(65 + i); // A, B, C ...
-      const color  = visitorColors[i % visitorColors.length];
-      const bg     = visitorBgs[i % visitorBgs.length];
+      // Color based on VIS ID hash for consistency
+      let hash = 0;
+      const vid = v.visitorId || '';
+      for (let c of vid) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+      const color = visitorColors[Math.abs(hash) % visitorColors.length];
+      const bg    = visitorBgs[Math.abs(hash) % visitorBgs.length];
+      // Avatar = first 2 chars of unique part after VIS_
+      const avatarText = vid.slice(4, 6).toUpperCase() || '👤';
+
       const lastSeen  = v.lastSeen  ? formatTime(v.lastSeen)  : '—';
       const firstSeen = v.firstSeen ? formatTime(v.firstSeen) : '—';
       const visits = Array.isArray(v.visits) ? v.visits.slice(0, 8) : [];
       return `
         <div class="visitor-card">
           <div class="visitor-card-header">
-            <div class="visitor-avatar" style="background:${bg}; color:${color}; border:2px solid ${color};">${label}</div>
+            <div class="visitor-avatar" style="background:${bg}; color:${color}; border:2px solid ${color}; font-size:0.9rem;">${avatarText}</div>
             <div>
-              <div class="visitor-name" style="color:${color};">Visitor ${label}</div>
-              <div class="visitor-id">${v.visitorId || '—'}</div>
+              <div class="visitor-name" style="color:${color}; font-size:0.85rem; font-family:monospace;">${vid || '—'}</div>
             </div>
           </div>
           <div class="visit-count-badge">👁️ ${v.visitCount || 1} visit${(v.visitCount || 1) > 1 ? 's' : ''}</div>
