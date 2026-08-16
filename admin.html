@@ -79,36 +79,33 @@
       margin-bottom: 1.8rem;
     }
 
-    .pin-input {
+    .auth-input {
       background: var(--surface2);
-      border: 2px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
       color: var(--text);
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 0.3em;
-      text-align: center;
-      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      padding: 0.8rem 1rem;
       width: 100%;
       outline: none;
       transition: all 0.2s;
-      margin-bottom: 1.2rem;
-      font-family: monospace;
+      box-sizing: border-box;
+      font-family: inherit;
     }
-    .pin-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 15px rgba(255, 107, 107, 0.2);
+    .auth-input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 15px rgba(255, 217, 61, 0.2);
     }
-    .pin-input.shake {
-      animation: shake 0.4s ease;
-      border-color: var(--accent);
+    .auth-error {
+      background: rgba(255, 107, 107, 0.12);
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      color: #ff8e8e;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      line-height: 1.4;
+      text-align: left;
     }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-10px); }
-      40%, 80% { transform: translateX(10px); }
-    }
-
     .btn-unlock {
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border: none;
@@ -116,13 +113,26 @@
       font-family: 'Inter', sans-serif;
       font-size: 0.95rem;
       font-weight: 700;
-      padding: 0.8rem 1.5rem;
+      padding: 0.85rem 1.5rem;
       border-radius: var(--radius-sm);
       width: 100%;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
     }
-    .btn-unlock:hover { opacity: 0.9; }
+    .btn-unlock:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-unlock:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .user-email-chip {
+      background: rgba(96, 165, 250, 0.12);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      color: var(--accent4);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
 
     /* ── Header ── */
     .admin-header {
@@ -681,14 +691,18 @@
 </head>
 <body>
 
-<!-- ── PIN Lock Screen Overlay ── -->
+<!-- ── Firebase Auth Login Screen Overlay ── -->
 <div class="lockscreen-overlay" id="lockScreen">
   <div class="lock-card">
     <div class="lock-icon">🔐</div>
-    <div class="lock-title">Admin Access</div>
-    <div class="lock-sub">Enter PIN to view responses</div>
-    <input type="password" id="pinInput" class="pin-input" maxlength="12" placeholder="•••••" autocomplete="off" autofocus />
-    <button class="btn-unlock" id="unlockBtn">Unlock Panel 🔓</button>
+    <div class="lock-title">Admin Login</div>
+    <div class="lock-sub">Firebase Email & Password enter karein</div>
+    <form id="adminLoginForm" onsubmit="return false;" style="display:flex; flex-direction:column; gap:0.9rem;">
+      <input type="email" id="adminEmail" class="auth-input" placeholder="Admin Email (e.g. admin@gmail.com)" autocomplete="email" required autofocus />
+      <input type="password" id="adminPassword" class="auth-input" placeholder="Admin Password" autocomplete="current-password" required />
+      <div id="loginError" class="auth-error" style="display:none;"></div>
+      <button type="submit" class="btn-unlock" id="loginBtn">Login to Admin 🔓</button>
+    </form>
   </div>
 </div>
 
@@ -700,9 +714,10 @@
     <span class="header-badge">Admin</span>
   </div>
   <div class="header-actions">
+    <span class="user-email-chip" id="adminEmailBadge" style="display:none;">👤 <span id="adminEmailText"></span></span>
     <span class="status-dot" id="connectionDot" title="Checking connection..."></span>
     <button class="btn-header" id="refreshBtn">⟳ Refresh</button>
-    <button class="btn-header" id="changePinBtn">🔑 Change PIN</button>
+    <button class="btn-header" id="logoutBtn">🚪 Logout</button>
     <button class="btn-header" id="exportBtn">↓ Export CSV</button>
     <button class="btn-header btn-danger" id="clearAllBtn">🗑️ Clear All</button>
     <a href="index.html" class="btn-header" style="text-decoration:none;">← Back to Site</a>
@@ -814,64 +829,18 @@
   <span id="toastMsg">Action completed</span>
 </div>
 
-<!-- 1. STANDALONE IMMEDIATE PIN SCRIPT (Works even if network or module imports fail) -->
-<script>
-  (function() {
-    const MASTER_PIN = '82543';
-    const lockScreen = document.getElementById('lockScreen');
-    const pinInput   = document.getElementById('pinInput');
-    const unlockBtn  = document.getElementById('unlockBtn');
+<!-- ── Toast Notification ── -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Action completed</span>
+</div>
 
-    function checkAndUnlock() {
-      const entered = (pinInput.value || '').trim();
-      const savedPin = localStorage.getItem('mantu_admin_custom_pin') || MASTER_PIN;
-
-      if (entered === savedPin || entered === MASTER_PIN) {
-        sessionStorage.setItem('mantu_admin_auth', 'true');
-        lockScreen.classList.add('unlocked');
-        if (window.onAdminUnlocked) {
-          window.onAdminUnlocked();
-        }
-      } else {
-        pinInput.classList.add('shake');
-        pinInput.value = '';
-        setTimeout(() => pinInput.classList.remove('shake'), 450);
-        alert('Galat PIN! Sahi PIN enter karein.');
-      }
-    }
-
-    // Auto-unlock if already authenticated in this session
-    if (sessionStorage.getItem('mantu_admin_auth') === 'true') {
-      lockScreen.classList.add('unlocked');
-    }
-
-    unlockBtn.addEventListener('click', checkAndUnlock);
-    pinInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') checkAndUnlock();
-    });
-
-    // Change PIN handler
-    document.getElementById('changePinBtn').addEventListener('click', function() {
-      const current = prompt('Current PIN enter karein:');
-      const savedPin = localStorage.getItem('mantu_admin_custom_pin') || MASTER_PIN;
-      if (current !== savedPin && current !== MASTER_PIN) {
-        alert('Current PIN galat hai!');
-        return;
-      }
-      const newP = prompt('Naya PIN enter karein (4 se 8 digits):');
-      if (!newP || newP.trim().length < 4) {
-        alert('PIN kam se kam 4 digits ka hona chahiye.');
-        return;
-      }
-      localStorage.setItem('mantu_admin_custom_pin', newP.trim());
-      alert('PIN successfully badal gaya! ✅');
-    });
-  })();
-</script>
-
-<!-- 2. DATA APP MODULE (Loads Firebase and renders tables) -->
+<!-- DATA & FIREBASE AUTH MODULE -->
 <script type="module">
   import {
+    loginAdmin,
+    logoutAdmin,
+    onAdminAuthStateChanged,
     listenToAllResponses,
     listenToVisitors,
     deleteSessionData,
@@ -883,6 +852,16 @@
   let allVisitorsData = [];
   let pendingDeleteTarget = null;
   let activeDrawerSessionId = null;
+
+  const lockScreen      = document.getElementById('lockScreen');
+  const loginForm       = document.getElementById('adminLoginForm');
+  const emailInput      = document.getElementById('adminEmail');
+  const passwordInput   = document.getElementById('adminPassword');
+  const loginBtn        = document.getElementById('loginBtn');
+  const loginError      = document.getElementById('loginError');
+  const adminEmailBadge = document.getElementById('adminEmailBadge');
+  const adminEmailText  = document.getElementById('adminEmailText');
+  const logoutBtn       = document.getElementById('logoutBtn');
 
   const tbody        = document.getElementById('responsesBody');
   const statTotal    = document.getElementById('statTotal');
@@ -915,6 +894,69 @@
     setTimeout(() => toast.classList.remove('show'), 3500);
   }
 
+  // ── Firebase Auth State Listener ──
+  onAdminAuthStateChanged((user) => {
+    if (user) {
+      lockScreen.classList.add('unlocked');
+      if (adminEmailBadge) adminEmailBadge.style.display = 'inline-flex';
+      if (adminEmailText) adminEmailText.textContent = user.email || 'Admin';
+      initAdminData();
+    } else {
+      lockScreen.classList.remove('unlocked');
+      if (adminEmailBadge) adminEmailBadge.style.display = 'none';
+    }
+  });
+
+  // ── Login Handler ──
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = (emailInput.value || '').trim();
+    const pass  = (passwordInput.value || '').trim();
+
+    if (!email || !pass) {
+      showLoginError('Email aur password dono enter karein.');
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Logging in... ⏳';
+    loginError.style.display = 'none';
+
+    try {
+      await loginAdmin(email, pass);
+      showToast('Welcome back, Admin! 🔓', '🎉');
+      emailInput.value = '';
+      passwordInput.value = '';
+    } catch (err) {
+      console.error('Login error:', err);
+      let errMsg = 'Login failed! Email ya Password galat hai.';
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        errMsg = 'Galat credentials! Please check email & password.';
+      } else if (err.code === 'auth/too-many-requests') {
+        errMsg = 'Bahut saare attempts! Thodi der baad try karein.';
+      }
+      showLoginError(errMsg);
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login to Admin 🔓';
+    }
+  });
+
+  function showLoginError(msg) {
+    loginError.textContent = msg;
+    loginError.style.display = 'block';
+  }
+
+  // ── Logout Handler ──
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await logoutAdmin();
+      showToast('Logged out safely! 🔒');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  });
+
   function initAdminData() {
     connDot.style.background = '#6bcb77';
     connDot.style.boxShadow  = '0 0 6px #6bcb77';
@@ -936,14 +978,6 @@
         renderTable(allData);
       }
     }, 30000);
-  }
-
-  // Hook for standalone unlock script
-  window.onAdminUnlocked = initAdminData;
-
-  // If already unlocked
-  if (sessionStorage.getItem('mantu_admin_auth') === 'true') {
-    initAdminData();
   }
 
   function formatTime(isoStr) {

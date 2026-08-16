@@ -21,11 +21,55 @@ export function isFirebaseConfigured() {
   );
 }
 
-let db = null;
-let firestoreInitialized = false;
+let appInstance = null;
+let auth = null;
+let authInitialized = false;
+let getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged;
 
-// Dynamic imports for Firebase SDK v10 via CDN
-let initializeApp, getFirestore, doc, setDoc, deleteDoc, getDocs, collection, onSnapshot, query, orderBy, serverTimestamp;
+export async function getFirebaseApp() {
+  if (appInstance) return appInstance;
+  const appModule = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+  appInstance = appModule.initializeApp(firebaseConfig);
+  return appInstance;
+}
+
+export async function initAuth() {
+  if (authInitialized) return auth;
+  try {
+    const app = await getFirebaseApp();
+    const authModule = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    getAuth = authModule.getAuth;
+    signInWithEmailAndPassword = authModule.signInWithEmailAndPassword;
+    signOut = authModule.signOut;
+    onAuthStateChanged = authModule.onAuthStateChanged;
+    auth = getAuth(app);
+    authInitialized = true;
+    return auth;
+  } catch (err) {
+    console.error("❌ Firebase Auth init error:", err);
+    return null;
+  }
+}
+
+export async function loginAdmin(email, password) {
+  const authInstance = await initAuth();
+  if (!authInstance) throw new Error("Firebase Auth not initialized.");
+  return await signInWithEmailAndPassword(authInstance, email, password);
+}
+
+export async function logoutAdmin() {
+  const authInstance = await initAuth();
+  if (authInstance) await signOut(authInstance);
+}
+
+export async function onAdminAuthStateChanged(callback) {
+  const authInstance = await initAuth();
+  if (!authInstance) {
+    callback(null);
+    return () => {};
+  }
+  return onAuthStateChanged(authInstance, callback);
+}
 
 export async function initFirebase() {
   if (firestoreInitialized) return db;
@@ -36,10 +80,9 @@ export async function initFirebase() {
   }
 
   try {
-    const appModule = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app = await getFirebaseApp();
     const firestoreModule = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
 
-    initializeApp = appModule.initializeApp;
     getFirestore = firestoreModule.getFirestore;
     doc = firestoreModule.doc;
     setDoc = firestoreModule.setDoc;
@@ -51,7 +94,6 @@ export async function initFirebase() {
     orderBy = firestoreModule.orderBy;
     serverTimestamp = firestoreModule.serverTimestamp;
 
-    const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     firestoreInitialized = true;
     console.log("✅ Firebase Firestore connected successfully!");
