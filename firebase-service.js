@@ -26,6 +26,11 @@ let db = null;
 let firestoreInitialized = false;
 let auth = null;
 let authInitialized = false;
+
+// Firestore SDK function references
+let getFirestore, doc, setDoc, deleteDoc, getDocs, collection, onSnapshot, query, orderBy, serverTimestamp;
+
+// Auth SDK function references
 let getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged;
 
 export async function getFirebaseApp() {
