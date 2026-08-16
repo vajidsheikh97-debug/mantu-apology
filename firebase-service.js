@@ -22,6 +22,8 @@ export function isFirebaseConfigured() {
 }
 
 let appInstance = null;
+let db = null;
+let firestoreInitialized = false;
 let auth = null;
 let authInitialized = false;
 let getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged;
